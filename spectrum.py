@@ -58,13 +58,11 @@ def add(spec1, spec2):
 
     #   Check that the count time is the same
     if not spec1.count_time == spec2.count_time:
-        print("ERROR: Cannot add spectra with differing count times")
-        exit()
+        raise ValueError("Spectra must have identical count time when adding")
 
     #   Check that the energy bins are the same in both spectra
     if not np.array_equal(spec1.counts_by_kev[:,0],spec2.counts_by_kev[:,0]):
-        print("ERROR: Cannot add spectra with different energy bins")
-        exit()
+        raise ValueError("Spectra must have identical energy bins when adding")
 
     res_spec = spec1.counts_by_kev
     res_spec[:,1] += spec2.counts_by_kev[:,1]
@@ -79,13 +77,11 @@ def subtract(spec1, spec2):
 
     #   Check that the count time is the same
     if not spec1.count_time == spec2.count_time:
-        print("ERROR: Cannot subtract spectra with differing count times")
-        exit()
+        raise ValueError("Spectra must have identical count time when subtracting")
 
     #   Check that the energy bins are the same in both spectra
     if not np.array_equal(spec1.counts_by_kev[:,0],spec2.counts_by_kev[:,0]):
-        print("ERROR: Cannot subtract spectra with different energy bins")
-        exit()
+        raise ValueError("Spectra must have identical energy bins when subtracting")
 
     res_spec = spec1.counts_by_kev
     res_spec[:,1] -= spec2.counts_by_kev[:,1]
