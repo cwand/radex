@@ -7,27 +7,27 @@ import matplotlib.pyplot as plt
 #       + counts_by_kev:
 #           2D numpy array storing:
 #               the energy bins in keV in the first column
-#               the counts in the second column
+#               the count rate (cps)
 #       + count_time:
 #           The count time in seconds
 
 class Spectrum:
 
-    def __init__(self, counts_by_kev, count_time):
+    def __init__(self, rate_by_kev, count_time):
 
-        self.counts_by_kev  =   counts_by_kev
+        self.rate_by_kev  =   rate_by_kev
         self.count_time     =   count_time
 
 
     #   Save the spectrum to a file.
     def printToFile(self, file_name):
 
-        np.savetxt(file_name,self.counts_by_kev,
+        np.savetxt(file_name,self.rate_by_kev,
             fmt='%d\t%.5f',
             delimiter='\t',
             comments='',
             header='{}\n'
-                   'Energy [keV]\tCounts'.format(self.count_time))
+                   'Energy [keV]\tRate [cps]'.format(self.count_time))
 
 
     #   Plot the spectrum count data on the screen (halts execution)
@@ -35,7 +35,7 @@ class Spectrum:
 
         plt.plot(self.counts_by_kev[:,0],self.counts_by_kev[:,1])
         plt.xlabel("Energy [keV]")
-        plt.ylabel("Counts")
+        plt.ylabel("Rate [cps]")
         plt.title(title)
         plt.show()
 
@@ -61,11 +61,11 @@ def add(spec1, spec2):
         raise ValueError("Spectra must have identical count time when adding")
 
     #   Check that the energy bins are the same in both spectra
-    if not np.array_equal(spec1.counts_by_kev[:,0],spec2.counts_by_kev[:,0]):
+    if not np.array_equal(spec1.rate_by_kev[:,0],spec2.rate_by_kev[:,0]):
         raise ValueError("Spectra must have identical energy bins when adding")
 
-    res_spec = spec1.counts_by_kev
-    res_spec[:,1] += spec2.counts_by_kev[:,1]
+    res_spec = spec1.rate_by_kev
+    res_spec[:,1] += spec2.rate_by_kev[:,1]
     count_time = spec1.count_time
     return Spectrum(res_spec, count_time)
 
@@ -80,10 +80,10 @@ def subtract(spec1, spec2):
         raise ValueError("Spectra must have identical count time when subtracting")
 
     #   Check that the energy bins are the same in both spectra
-    if not np.array_equal(spec1.counts_by_kev[:,0],spec2.counts_by_kev[:,0]):
+    if not np.array_equal(spec1.rate_by_kev[:,0],spec2.rate_by_kev[:,0]):
         raise ValueError("Spectra must have identical energy bins when subtracting")
 
-    res_spec = spec1.counts_by_kev
-    res_spec[:,1] -= spec2.counts_by_kev[:,1]
+    res_spec = spec1.rate_by_kev
+    res_spec[:,1] -= spec2.rate_by_kev[:,1]
     count_time = spec1.count_time
     return Spectrum(res_spec, count_time)

@@ -14,8 +14,8 @@ class TestSpectrum(unittest.TestCase):
         spec1 = spectrum.Spectrum(c1,t1)
         spec2 = spectrum.Spectrum(c2,t2)
         spec12 = spectrum.add(spec1,spec2)
-        np.testing.assert_array_equal(np.array([0,2,4]),spec12.counts_by_kev[:,0])
-        np.testing.assert_array_equal(np.array([2,6,10]),spec12.counts_by_kev[:,1])
+        np.testing.assert_array_equal(np.array([0,2,4]),spec12.rate_by_kev[:,0])
+        np.testing.assert_array_equal(np.array([2,6,10]),spec12.rate_by_kev[:,1])
         self.assertEqual(spec12.count_time,100)
 
     def test_subtract_spectrum(self):
@@ -26,8 +26,8 @@ class TestSpectrum(unittest.TestCase):
         spec1 = spectrum.Spectrum(c1,t1)
         spec2 = spectrum.Spectrum(c2,t2)
         spec12 = spectrum.subtract(spec1,spec2)
-        np.testing.assert_array_equal(np.array([0,2,4]),spec12.counts_by_kev[:,0])
-        np.testing.assert_array_equal(np.array([0,0,0]),spec12.counts_by_kev[:,1])
+        np.testing.assert_array_equal(np.array([0,2,4]),spec12.rate_by_kev[:,0])
+        np.testing.assert_array_equal(np.array([0,0,0]),spec12.rate_by_kev[:,1])
         self.assertEqual(spec12.count_time,100)
 
     def test_add_subtract_spectrum_error(self):

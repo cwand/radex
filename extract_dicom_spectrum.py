@@ -78,6 +78,6 @@ def extract_spectrum(file_name):
     cps = np.fromstring(specstr[:-3],sep=' ').reshape(-1,2)
 
     spec = cps
-    spec[:,1] = cps[:,1]*frame_duration/1000 # Convert from cps to counts
+    #spec[:,1] = cps[:,1]*frame_duration/1000 # Convert from cps to counts
 
     return spectrum.Spectrum(spec, frame_duration/1000 )
