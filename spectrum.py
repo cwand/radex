@@ -15,7 +15,7 @@ class Spectrum:
 
     def __init__(self, rate_by_kev, count_time):
 
-        self.rate_by_kev  =   rate_by_kev
+        self.rate_by_kev    =   rate_by_kev
         self.count_time     =   count_time
 
 
@@ -28,6 +28,20 @@ class Spectrum:
             comments='',
             header='{}\n'
                    'Energy [keV]\tRate [cps]'.format(self.count_time))
+
+    #   Get the total count rate in a given window (defaults to entire spectrum)
+    def rateInWindow(self, window = []):
+
+        check_window = window
+        if not check_window:
+            check_window = [self.rate_by_kev[0,0],self.rate_by_kev[-1,0]]
+        total_rate = 0
+        for kev,rate in self.rate_by_kev:
+            if ((kev >= check_window[0]) and (kev <= check_window[1])):
+                total_rate += rate
+        return total_rate
+
+
 
 
     #   Plot the spectrum count data on the screen (halts execution)

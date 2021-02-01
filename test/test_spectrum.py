@@ -49,3 +49,15 @@ class TestSpectrum(unittest.TestCase):
         spec2 = spectrum.Spectrum(c2,t2)
         self.assertRaises(ValueError, spectrum.add, spec1, spec2)
         self.assertRaises(ValueError, spectrum.subtract, spec1, spec2)
+
+    def test_rate_in_window_specified(self):
+        c1 = np.arange(10).reshape(-1,2)
+        t1 = 100
+        spec1 = spectrum.Spectrum(c1,t1)
+        self.assertEqual(spec1.rateInWindow([4,7]),12)
+
+    def test_rate_in_window_full(self):
+        c1 = np.arange(10).reshape(-1,2)
+        t1 = 100
+        spec1 = spectrum.Spectrum(c1,t1)
+        self.assertEqual(spec1.rateInWindow(),25)
