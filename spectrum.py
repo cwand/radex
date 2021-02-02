@@ -20,7 +20,7 @@ class Spectrum:
 
 
     #   Save the spectrum to a file.
-    def printToFile(self, file_name):
+    def print_to_file(self, file_name):
 
         np.savetxt(file_name,self.rate_by_kev,
             fmt='%d\t%.5f',
@@ -30,7 +30,7 @@ class Spectrum:
                    'Energy [keV]\tRate [cps]'.format(self.count_time))
 
     #   Get the total count rate in a given window (defaults to entire spectrum)
-    def rateInWindow(self, window = []):
+    def rate_in_window(self, window = []):
 
         check_window = window
         if not check_window:
@@ -54,7 +54,7 @@ class Spectrum:
         plt.show()
 
 #   Load a spectrum from a file saved by using the printToFile method
-def loadFromFile(file_name):
+def load_from_file(file_name):
 
     #   Read spectrum part of file
     spectrum = np.loadtxt(file_name,delimiter='\t',skiprows=2)

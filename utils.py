@@ -13,7 +13,7 @@
 # >>> print(options[x])
 # C
 
-def listChoose(descText, quest, options):
+def list_choose(descText, quest, options):
 
     print(descText)
 

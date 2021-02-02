@@ -12,3 +12,9 @@ class TestActivity(unittest.TestCase):
         t1 = 1
         spec1 = spectrum.Spectrum(c1,t1)
         self.assertEqual(activity.mda_simple(spec1,0.5,[0,4]),18)
+
+    def test_mda_simple_without_sensitivity_and_window(self):
+        c1 = np.arange(10).reshape(-1,2)
+        t1 = 1
+        spec1 = spectrum.Spectrum(c1,t1)
+        self.assertEqual(activity.mda_simple(spec1),15)
