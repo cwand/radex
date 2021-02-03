@@ -30,7 +30,7 @@ class Spectrum:
                    'Energy [keV]\tRate [cps]'.format(self.count_time))
 
     #   Get the total count rate in a given window (defaults to entire spectrum)
-    def rate_in_window(self, window = []):
+    def window_rate(self, window = []):
 
         check_window = window
         if not check_window:

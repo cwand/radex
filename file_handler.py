@@ -15,10 +15,10 @@ class FileHandler:
             self.filemap[ds['SeriesDescription'].value].append(filename)
 
     #   Get a list of all series descriptions available
-    def get_descriptions(self):
+    def descriptions(self):
         return list(self.filemap.keys())
 
-    def get_files_for_description(self, descr):
+    def files(self, descr):
         if descr in self.filemap:
             return self.filemap[descr]
         return []
