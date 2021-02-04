@@ -4,6 +4,7 @@ import activity
 import file_handler
 import extract_dicom_spectrum
 import argparse
+import physics
 
 
 print('')
@@ -53,8 +54,88 @@ print('')
 print('Du har valgt ' + src_descr + ' som kilde!')
 print('')
 
+#   Remove chosen description from list of descriptions
+descr.pop(src_idx)
+
 #   Query user for activity of known source
 print('Hvad er aktiviteten (Bq) af kilden?')
 src_act = int(input("Aktivitet i Bq: "))
-print(src_act)
 print('')
+
+
+print('Alle resterende serier vil blive analyseret med den valgte baggrund '
+        'og kilde.')
+print('')
+print('')
+
+
+
+print('Analyserer kilde og baggrund...')
+print('')
+
+#   Fetch spectra for background and source
+bkg_files = fh.files(bkg_descr) # List of files for background
+bkg_spec = extract_dicom_spectrum.extract_spectrum(bkg_files[0]) # Extract for first file
+for fn in bkg_files[1:]:
+    bkg_spec = spectrum.add(bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
+
+# ...and again for source
+src_files = fh.files(src_descr)
+src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
+for fn in src_files[1:]:
+    src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
+
+#   Subtract background from source
+src_spec = spectrum.subtract(src_spec,bkg_spec)
+
+sens = {}
+mda = {}
+
+#   In each window, measure sensitivity and MDA
+for window in physics.windows['Ra']:
+    print(' - {}keV - {}keV:'.format(window[0],window[1]))
+    src_rate = src_spec.window_rate(window)
+    print('     Kilde net. tællerate: {:.0f}cps'.format(src_rate))
+    sens[window] = src_rate/src_act
+    print('     Følsomhed i vindue: {:.3f}cps/Bq'.format(sens[window]))
+    mda[window] = activity.mda_simple(bkg_spec, sens[window], window)
+    print('     MDA i vindue: {:.0f}Bq'.format(mda[window]))
+
+    print('')
+
+print('')
+
+
+#   Measure activity for each description
+for des in descr:
+    print('Analyserer serie "{}"'.format(des))
+    print('')
+
+    #   Load spectra
+    ser_files = fh.files(des)
+    ser_spec = extract_dicom_spectrum.extract_spectrum(ser_files[0])
+    for fn in ser_files[1:]:
+        ser_spec = spectrum.add(ser_spec,extract_dicom_spectrum.extract_spectrum(fn))
+
+    #   Subtract background
+    ser_spec = spectrum.subtract(ser_spec, bkg_spec)
+
+    #   Go through windows:
+    max_act = 0
+    for window in physics.windows['Ra']:
+        print(' - {}keV - {}keV:'.format(window[0],window[1]))
+        ser_rate = ser_spec.window_rate(window)
+        ser_act = ser_rate/sens[window]
+        if ((ser_act >= max_act) and (ser_act >= mda[window])):
+            max_act = ser_act
+        print('     Net. tællerate i vindue: {:.0f}cps'.format(ser_rate))
+        print('     Net. aktivitet i vindue: {:.0f}Bq'.format(ser_act))
+
+        print('')
+
+    if (max_act > 0):
+        print('Activity detected! - RUN!')
+    else:
+        print('No activity detected in series "{}"'.format(des))
+    print('')
+    print('')
