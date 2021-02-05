@@ -10,13 +10,16 @@ import matplotlib.pyplot as plt
 #               the count rate (cps)
 #       + count_time:
 #           The count time in seconds
+#       + mdate:
+#           The date the spectrum was measured
 
 class Spectrum:
 
-    def __init__(self, rate_by_kev, count_time):
+    def __init__(self, rate_by_kev, count_time, mdate = None):
 
         self.rate_by_kev    =   rate_by_kev
         self.count_time     =   count_time
+        self.mdate          =   mdate
 
 
     #   Save the spectrum to a file.

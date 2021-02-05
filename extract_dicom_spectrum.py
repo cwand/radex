@@ -56,6 +56,8 @@ def extract_spectrum(file_name):
 
     # --- Read necessary tags from DICOM file
     frame_duration      =   ds[0x0018,0x1242].value
+    meas_date           =   ds[0x0008,0x0012].value
+    print(meas_date)
 
     #  ---  Read spectrum data ---
     #       (Hacked to within an inch of its life.

@@ -25,3 +25,7 @@ def list_choose(descText, quest, options):
        selKey = int(input(quest + " ")) - 1
 
     return selKey
+
+# Convert a string with format "yyyymmdd" to a python date object
+def yyyymmdd2date(date_string):
+    return 0

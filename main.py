@@ -92,7 +92,7 @@ sens = {}
 mda = {}
 
 #   In each window, measure sensitivity and MDA
-for window in physics.windows['Ra']:
+for window in physics.windows['Ra223']:
     print(' - {}keV - {}keV:'.format(window[0],window[1]))
     src_rate = src_spec.window_rate(window)
     print('     Kilde net. tællerate: {:.0f}cps'.format(src_rate))
@@ -122,7 +122,7 @@ for des in descr:
 
     #   Go through windows:
     max_act = 0
-    for window in physics.windows['Ra']:
+    for window in physics.windows['Ra223']:
         print(' - {}keV - {}keV:'.format(window[0],window[1]))
         ser_rate = ser_spec.window_rate(window)
         ser_act = ser_rate/sens[window]
@@ -134,8 +134,14 @@ for des in descr:
         print('')
 
     if (max_act > 0):
-        print('Activity detected! - RUN!')
+        print('Aktivitet i serie "{}": {}Bq')
+        days = activity.prescribe_activity(
+            max_act, 300, physics.half_life['Ra223'])
+
+
     else:
-        print('No activity detected in series "{}"'.format(des))
+        print('Ingen aktivitet i serie "{}"'.format(des))
+
+    input("Tryk Enter for at fortsætte...")
     print('')
     print('')
