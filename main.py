@@ -6,6 +6,8 @@ import extract_dicom_spectrum
 import argparse
 import physics
 import datetime
+import radiumlog
+import shutil, os
 
 
 print('')
@@ -16,7 +18,8 @@ print(''); print('')
 #   Setup
 
 #   Where we look for dicom files
-pardir = 'C:\\Users\\bub8ga\\radex\\train\\'
+pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
+archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
 
 #   Prepare file handler and discover all dicom files in the directory
 fh = file_handler.FileHandler(pardir)
@@ -140,12 +143,31 @@ for des in descr:
         mdate = ser_spec.mdate # Date of measurement
         decay_date = mdate + datetime.timedelta(days=decay_days)
         print('Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
+        print('')
+
+        # Query user to write to log file
+        yn = utils.list_choose("Hvis du synes at beregningen ser rigtig ud og den skal "
+                    "gemmes, skal den skrives til loggen.",
+                    "Gem til log?", ['Ja','Nej'])
+        if yn == 0:
+            radiumlog.write(mdate, des, mda[window], sens[window], max_act,
+                decay_days, decay_date)
 
 
 
     else:
         print('Ingen aktivitet i serie "{}"'.format(des))
 
-    #input("Tryk Enter for at fortsætte...")
+    input("Tryk Enter for at fortsætte...")
     print('')
     print('')
+
+
+archive = utils.list_choose(
+    "Hvis du er færdig med at arbejde med dette data, kan arkivere det.",
+    "Arkiver data?", ['Ja','Nej'])
+
+if archive == 0:
+    arch_today_dir = archdir+datetime.date.today().isoformat()
+    os.mkdir(arch_today_dir)
+    shutil.move(pardir,arch_today_dir+'\\')
