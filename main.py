@@ -5,6 +5,7 @@ import file_handler
 import extract_dicom_spectrum
 import argparse
 import physics
+import datetime
 
 
 print('')
@@ -134,13 +135,17 @@ for des in descr:
         print('')
 
     if (max_act > 0):
-        print('Aktivitet i serie "{}": {}Bq')
-        days = activity.decay(max_act, 300, physics.half_life['Ra223'])
+        print('Aktivitet i serie "{}": {:.0f}Bq'.format(des, max_act))
+        decay_days = activity.decay(max_act, 300, physics.half_life['Ra223'])
+        mdate = ser_spec.mdate # Date of measurement
+        decay_date = mdate + datetime.timedelta(days=decay_days)
+        print('Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
+
 
 
     else:
         print('Ingen aktivitet i serie "{}"'.format(des))
 
-    input("Tryk Enter for at fortsætte...")
+    #input("Tryk Enter for at fortsætte...")
     print('')
     print('')
