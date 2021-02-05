@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 #   Stores a spectrum with some useful information about the measurement
 #   Fields:
@@ -48,13 +48,13 @@ class Spectrum:
 
 
     #   Plot the spectrum count data on the screen (halts execution)
-    def plot(self, title=""):
+    #def plot(self, title=""):
 
-        plt.plot(self.counts_by_kev[:,0],self.counts_by_kev[:,1])
-        plt.xlabel("Energy [keV]")
-        plt.ylabel("Rate [cps]")
-        plt.title(title)
-        plt.show()
+    #    plt.plot(self.counts_by_kev[:,0],self.counts_by_kev[:,1])
+    #    plt.xlabel("Energy [keV]")
+    #    plt.ylabel("Rate [cps]")
+    #    plt.title(title)
+    #    plt.show()
 
 #   Load a spectrum from a file saved by using the printToFile method
 def load_from_file(file_name):
