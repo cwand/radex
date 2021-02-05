@@ -135,8 +135,7 @@ for des in descr:
 
     if (max_act > 0):
         print('Aktivitet i serie "{}": {}Bq')
-        days = activity.prescribe_activity(
-            max_act, 300, physics.half_life['Ra223'])
+        days = activity.decay(max_act, 300, physics.half_life['Ra223'])
 
 
     else:

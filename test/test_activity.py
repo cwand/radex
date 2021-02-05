@@ -5,7 +5,7 @@ import spectrum
 import activity
 import numpy as np
 
-class TestActivity(unittest.TestCase):
+class TestActivityMDASimple(unittest.TestCase):
 
     def test_mda_simple_with_sensitivity_and_window(self):
         c1 = np.arange(10).reshape(-1,2)
@@ -18,3 +18,10 @@ class TestActivity(unittest.TestCase):
         t1 = 1
         spec1 = spectrum.Spectrum(c1,t1)
         self.assertEqual(activity.mda_simple(spec1),15)
+
+
+class TestActivityDecay(unittest.TestCase):
+
+    def test_decay(self):
+        self.assertEqual(activity.decay(200,100,5),5)
+        self.assertEqual(activity.decay(400,100,4),8)

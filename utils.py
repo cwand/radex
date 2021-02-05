@@ -1,3 +1,5 @@
+from datetime import date
+
 
 # Choose an option from a list of items using keyboard input
 # Example:
@@ -26,6 +28,10 @@ def list_choose(descText, quest, options):
 
     return selKey
 
+
+
 # Convert a string with format "yyyymmdd" to a python date object
 def yyyymmdd2date(date_string):
-    return 0
+    # Convert to iso format
+    isostring = date_string[0:4] + '-' + date_string[4:6] + '-' + date_string[6:]
+    return date.fromisoformat(isostring)

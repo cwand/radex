@@ -18,9 +18,8 @@ def mda_simple(bkg_spec, sensitivty=1.0, window=[]):
     return mda
 
 
-#   Calculate the number of days until an initial activity has decayed to
-#   a target activity given the half life
-#   The unit of the returned perscribed time is the same as the unit on the
-#   half life
-def prescribe_activity(activity_i, activity_f, half_life):
-    return -half_life_days*math.log(activity_f/activity_i)/math.log(2.0)
+#   Calculate the amount of time until an initial activity has decayed to
+#   a target activity given the half life.
+#   The unit of the returned time is the same as the unit on the half life
+def decay(activity_i, activity_f, half_life):
+    return -half_life*math.log(activity_f/activity_i)/math.log(2.0)

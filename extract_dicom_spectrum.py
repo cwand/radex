@@ -3,6 +3,7 @@ import numpy as np
 import pydicom
 import tempfile
 import spectrum
+import utils
 
 # Extract spectrum from dicom file
 # Spectrum is extracted from the selected dicom file and written in plain
@@ -57,7 +58,8 @@ def extract_spectrum(file_name):
     # --- Read necessary tags from DICOM file
     frame_duration      =   ds[0x0018,0x1242].value
     meas_date           =   ds[0x0008,0x0012].value
-    print(meas_date)
+    # Convert meas_date to a python date object
+    mdate = utils.yyyymmdd2date(meas_date)
 
     #  ---  Read spectrum data ---
     #       (Hacked to within an inch of its life.
@@ -82,4 +84,4 @@ def extract_spectrum(file_name):
     spec = cps
     #spec[:,1] = cps[:,1]*frame_duration/1000 # Convert from cps to counts
 
-    return spectrum.Spectrum(spec, frame_duration/1000 )
+    return spectrum.Spectrum(spec, frame_duration/1000, mdate )

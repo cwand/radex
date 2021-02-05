@@ -69,13 +69,18 @@ def load_from_file(file_name):
 
 #   Add the counts of two spectra together. Meant to be used for when multiple
 #   detectors have measured separate spectra at the same time, which should be
-#   merged (i.e. increasing the count rate). The count time of both files must
-#   therefore be the same, and will also be the same in the resulting spectrum.
+#   merged (i.e. increasing the count rate). The count time and measurement date
+#   of both files must therefore be the same, and will also be the same in the
+#   resulting spectrum.
 def add(spec1, spec2):
 
     #   Check that the count time is the same
     if not spec1.count_time == spec2.count_time:
         raise ValueError("Spectra must have identical count time when adding")
+
+    #   Check that the date is the same
+    if not spec1.mdate == spec2.mdate:
+        raise ValueError("Spectra must have identical date when adding")
 
     #   Check that the energy bins are the same in both spectra
     if not np.array_equal(spec1.rate_by_kev[:,0],spec2.rate_by_kev[:,0]):
@@ -84,17 +89,22 @@ def add(spec1, spec2):
     res_spec = spec1.rate_by_kev
     res_spec[:,1] += spec2.rate_by_kev[:,1]
     count_time = spec1.count_time
-    return Spectrum(res_spec, count_time)
+    mdate = spec1.mdate
+    return Spectrum(res_spec, count_time, mdate)
 
 #   Subtract the counts of two spectra from each other.
 #   Meant to be used for subtracting background from a spectrum. The count time
-#   of both files must therefore be the same, and will also be the same in the
-#   resulting spectrum.
+#   and date of both files must therefore be the same, and will also be the same
+#   in the resulting spectrum.
 def subtract(spec1, spec2):
 
     #   Check that the count time is the same
     if not spec1.count_time == spec2.count_time:
         raise ValueError("Spectra must have identical count time when subtracting")
+
+    #   Check that the date is the same
+    if not spec1.mdate == spec2.mdate:
+        raise ValueError("Spectra must have identical date when adding")
 
     #   Check that the energy bins are the same in both spectra
     if not np.array_equal(spec1.rate_by_kev[:,0],spec2.rate_by_kev[:,0]):
@@ -103,4 +113,5 @@ def subtract(spec1, spec2):
     res_spec = spec1.rate_by_kev
     res_spec[:,1] -= spec2.rate_by_kev[:,1]
     count_time = spec1.count_time
-    return Spectrum(res_spec, count_time)
+    mdate = spec1.mdate
+    return Spectrum(res_spec, count_time, mdate)
