@@ -1,6 +1,6 @@
 import openpyxl
 
-log_file = '..\\..\\radium_log.xlsx'
+log_file = 'radium_log.xlsx'
 
 #   Log to spreadsheet
 def write(mdate, sername, mda, sens, act, days, disp_date):
