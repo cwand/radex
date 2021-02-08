@@ -29,7 +29,13 @@ fh.discover()
 
 #   Get all descriptions discovered
 descr = fh.descriptions()
-
+if not descr:
+    #   No dicom files found
+    print('Der blev ikke fundet nogle målinger. Tjek at der ligger filer med '
+          'endelsen .dcm i mappen ' + pardir + '. Filerne må gerne ligge i '
+          'undermapper.')
+    input("Tryk Enter for at afslutte programmet...")
+    exit()
 
 
 
