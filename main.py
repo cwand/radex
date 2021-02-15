@@ -138,14 +138,14 @@ for des in descr:
         ser_act = ser_rate/sens[window]
         if ((ser_act >= max_act) and (ser_act >= mda[window])):
             max_act = ser_act
-        print('     Net. tællerate i vindue: {:.0f}cps'.format(ser_rate))
         print('     Net. aktivitet i vindue: {:.0f}Bq'.format(ser_act))
 
         print('')
 
-    if (max_act > 0):
+    if (max_act > physics.acc_act['Ra223']):
         print('Aktivitet i serie "{}": {:.0f}Bq'.format(des, max_act))
-        decay_days = activity.decay(max_act, 300, physics.half_life['Ra223'])
+        decay_days = activity.decay(
+            max_act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
         mdate = ser_spec.mdate # Date of measurement
         decay_date = mdate + datetime.timedelta(days=decay_days)
         print('Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
@@ -162,7 +162,7 @@ for des in descr:
 
 
     else:
-        print('Ingen aktivitet i serie "{}"'.format(des))
+        print('Serie "{}" er ikke mærkbart forurenet.'.format(des))
 
     input("Tryk Enter for at fortsætte...")
     print('')
@@ -170,7 +170,7 @@ for des in descr:
 
 
 archive = utils.list_choose(
-    "Hvis du er færdig med at arbejde med dette data, kan arkivere det.",
+    "Hvis du er færdig med at arbejde med disse data, kan du arkivere det.",
     "Arkiver data?", ['Ja','Nej'])
 
 if archive == 0:
