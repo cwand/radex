@@ -20,7 +20,7 @@ max_mda = 100
 pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
 archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
 
-src_description = 'kilde 2' # Series description on known source we use
+src_description = 'kilde 1' # Series description on known source we use
 src_background = 'Bg 2' # Series description on background of known source we use
 
 
@@ -30,40 +30,52 @@ print(' -------  RADEX -------')
 print(''); print('')
 
 
-#   Analysis of known source
+
+#   Parse input arguments
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-s',
+    metavar='source_description',
+    help='Series description of the known source. The program comes shipped '
+         'with the following known sources: ' +
+         ', '.join(ra223sources.known_sources) + '.'
+         ' Defaults to "' + src_description + '".')
+
+parser.add_argument('-S',
+    metavar='activity',
+    help='Look for the known source description in the input file directory, '
+         'rather than in the directory of known sources. This option allows '
+         'you to supply your own known source. If you use this option, '
+         'the background used for the other measurements will be used for the '
+         'source as well. The activity of the known source must be specified '
+         'as a parameter to this option in units of [Bq]',
+    )
+
+parser.add_argument('-b',
+    metavar='bkg_src_description',
+    help='Series description of the background to remove from the known source.'
+         ' The program comes shipped with the following backgrounds: ' +
+         ', '.join(ra223sources.known_source_backgrounds) + '.'
+         ' Defaults to "' + src_background + '".')
+
+
+args = parser.parse_args()
 
 #   Use file handler to discover all dicom files in the known source folder
 srcfh = file_handler.FileHandler(ra223sources.known_source_dir)
 srcfh.discover()
-
-#   Load spectrum from known source and accompanying background
-src_bkg_files = srcfh.files(src_background) # List of files for background
-src_bkg_spec = extract_dicom_spectrum.extract_spectrum(src_bkg_files[0]) # Extract for first file
-for fn in src_bkg_files[1:]:
-    src_bkg_spec = spectrum.add(src_bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
-
-# ...and again for source
-src_files = srcfh.files(src_description)
-src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
-for fn in src_files[1:]:
-    src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
-
-#   Subtract background from source
-src_spec = spectrum.subtract(src_spec,src_bkg_spec)
-
-#   Get activity of known source
-src_act = ra223sources.known_source_act[src_description]
-
-
-#   Analysis of measurements
 
 #   Prepare file handler and discover all dicom files in the main directory
 fh = file_handler.FileHandler(pardir)
 fh.discover()
 
 
+
 #   Get all descriptions discovered
 descr = fh.descriptions()
+if args.S is not None:
+    # If a source has been supplied, remove that from the list of descriptions
+    descr.remove(args.s)
 if not descr:
     #   No dicom files found
     print('Der blev ikke fundet nogle målinger. Tjek at der ligger filer med '
@@ -84,8 +96,8 @@ print('')
 print('Du har valgt ' + bkg_descr + ' som baggrundsmåling!')
 print('')
 
-#   Remove chosen description from list og descriptions
-descr.pop(bkg_idx)
+# Remove background from list of descriptions
+descr.remove(bkg_descr)
 
 
 print('Alle resterende serier vil blive analyseret med den valgte baggrund.')
@@ -96,6 +108,46 @@ print('')
 
 print('Analyserer baggrund...')
 print('')
+
+
+#   First analyse the known source
+
+if args.s is not None:
+    src_description = args.s
+if args.b is not None:
+    src_background = args.b
+
+#   Load spectrum from known source and accompanying background
+if args.S is not None:
+    # A user supplied source is used, and we use the user supplied background
+    src_bkg_files = fh.files(bkg_descr) # List of files for background
+else:
+    src_bkg_files = srcfh.files(src_background)
+
+src_bkg_spec = extract_dicom_spectrum.extract_spectrum(src_bkg_files[0]) # Extract for first file
+for fn in src_bkg_files[1:]:
+    src_bkg_spec = spectrum.add(src_bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
+
+# ...and again for source
+if args.S is not None:
+    src_files = srcfh.files(src_description)
+else:
+    src_files = fh.files(src_description)
+
+src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
+for fn in src_files[1:]:
+    src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
+
+#   Subtract background from source
+src_spec = spectrum.subtract(src_spec,src_bkg_spec)
+
+#   Get activity of known source
+if args.S is not None:
+    src_act = int(args.S)
+else:
+    src_act = ra223sources.known_source_act[src_description]
+
+
 
 #   Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
