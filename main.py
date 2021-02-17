@@ -5,14 +5,10 @@ import file_handler
 import extract_dicom_spectrum
 import argparse
 import physics
+import ra223sources
 import datetime
 import radiumlog
 import shutil, os
-
-
-print('')
-print(' -------  RADEX -------')
-print(''); print('')
 
 
 #   Setup
@@ -24,10 +20,46 @@ max_mda = 100
 pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
 archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
 
-#   Prepare file handler and discover all dicom files in the directory
+src_description = 'kilde 2' # Series description on known source we use
+src_background = 'Bg 2' # Series description on background of known source we use
+
+
+
+print('')
+print(' -------  RADEX -------')
+print(''); print('')
+
+
+#   Analysis of known source
+
+#   Use file handler to discover all dicom files in the known source folder
+srcfh = file_handler.FileHandler(ra223sources.known_source_dir)
+srcfh.discover()
+
+#   Load spectrum from known source and accompanying background
+src_bkg_files = srcfh.files(src_background) # List of files for background
+src_bkg_spec = extract_dicom_spectrum.extract_spectrum(src_bkg_files[0]) # Extract for first file
+for fn in src_bkg_files[1:]:
+    src_bkg_spec = spectrum.add(src_bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
+
+# ...and again for source
+src_files = srcfh.files(src_description)
+src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
+for fn in src_files[1:]:
+    src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
+
+#   Subtract background from source
+src_spec = spectrum.subtract(src_spec,src_bkg_spec)
+
+#   Get activity of known source
+src_act = ra223sources.known_source_act[src_description]
+
+
+#   Analysis of measurements
+
+#   Prepare file handler and discover all dicom files in the main directory
 fh = file_handler.FileHandler(pardir)
 fh.discover()
-
 
 
 #   Get all descriptions discovered
@@ -56,51 +88,20 @@ print('')
 descr.pop(bkg_idx)
 
 
-
-#   Query user for known source spectrum to use from available descriptions
-src_idx = utils.list_choose(
-    'Hvilken serie skal benyttes som kilde? (Skriv nummeret ud for den ønskede valgmulighed)',
-    'Kildeserie: ',
-    descr)
-src_descr = descr[src_idx]
-print('')
-print('Du har valgt ' + src_descr + ' som kilde!')
-print('')
-
-#   Remove chosen description from list of descriptions
-descr.pop(src_idx)
-
-#   Query user for activity of known source
-print('Hvad er aktiviteten (Bq) af kilden?')
-src_act = int(input("Aktivitet i Bq: "))
-print('')
-
-
-print('Alle resterende serier vil blive analyseret med den valgte baggrund '
-        'og kilde.')
+print('Alle resterende serier vil blive analyseret med den valgte baggrund.')
 input("Tryk Enter for at fortsætte...")
 print('')
 print('')
 
 
-
 print('Analyserer baggrund...')
 print('')
 
-#   Fetch spectra for background and source
+#   Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
 bkg_spec = extract_dicom_spectrum.extract_spectrum(bkg_files[0]) # Extract for first file
 for fn in bkg_files[1:]:
     bkg_spec = spectrum.add(bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
-
-# ...and again for source
-src_files = fh.files(src_descr)
-src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
-for fn in src_files[1:]:
-    src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
-
-#   Subtract background from source
-src_spec = spectrum.subtract(src_spec,bkg_spec)
 
 sens = {}
 mda = {}
@@ -184,5 +185,5 @@ archive = utils.list_choose(
 
 if archive == 0:
     arch_today_dir = archdir+datetime.date.today().isoformat()
-    os.mkdir(arch_today_dir)
+    os.makedirs(arch_today_dir, exist_ok=True)
     shutil.move(pardir,arch_today_dir+'\\')

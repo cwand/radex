@@ -1,4 +1,5 @@
 import openpyxl
+from datetime import date
 
 log_file = 'radium_log.xlsx'
 
@@ -9,6 +10,6 @@ def write(mdate, sername, window, mda, sens, act, days, disp_date):
     ws = wb['radium']
     window_string = '{} - {}'.format(window[0], window[1])
 
-    ws.append([mdate, sername, window_string, mda, sens, act, days, disp_date])
+    ws.append([mdate, sername, window_string, mda, sens, act, days, disp_date, date.today()])
 
     wb.save(log_file)
