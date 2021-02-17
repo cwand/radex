@@ -17,6 +17,9 @@ print(''); print('')
 
 #   Setup
 
+# Maximum allowed MDA:
+max_mda = 100
+
 #   Where we look for dicom files
 pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
 archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
@@ -75,12 +78,13 @@ print('')
 
 print('Alle resterende serier vil blive analyseret med den valgte baggrund '
         'og kilde.')
+input("Tryk Enter for at fortsætte...")
 print('')
 print('')
 
 
 
-print('Analyserer kilde og baggrund...')
+print('Analyserer baggrund...')
 print('')
 
 #   Fetch spectra for background and source
@@ -100,19 +104,24 @@ src_spec = spectrum.subtract(src_spec,bkg_spec)
 
 sens = {}
 mda = {}
+windows = [] # Windows we will end up using
 
 #   In each window, measure sensitivity and MDA
 for window in physics.windows['Ra223']:
     print(' - {}keV - {}keV:'.format(window[0],window[1]))
     src_rate = src_spec.window_rate(window)
-    print('     Kilde net. tællerate: {:.0f}cps'.format(src_rate))
     sens[window] = src_rate/src_act
-    print('     Følsomhed i vindue: {:.3f}cps/Bq'.format(sens[window]))
     mda[window] = activity.mda_simple(bkg_spec, sens[window], window)
     print('     MDA i vindue: {:.0f}Bq'.format(mda[window]))
+    if mda[window] > max_mda:
+        print('     Vindue ignoreres pga. dårlig MDA')
+    else:
+        windows.append(window)
 
     print('')
 
+input("Tryk Enter for at fortsætte...")
+print('')
 print('')
 
 
@@ -132,7 +141,7 @@ for des in descr:
 
     #   Go through windows:
     max_act = 0
-    for window in physics.windows['Ra223']:
+    for window in windows:
         print(' - {}keV - {}keV:'.format(window[0],window[1]))
         ser_rate = ser_spec.window_rate(window)
         ser_act = ser_rate/sens[window]
