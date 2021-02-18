@@ -25,7 +25,7 @@ source = 'kilde 1'
 source_bkg = 'Bg 2'
 
 #	Activity of known source
-src_act = ra223sources.known_source_act[source]
+src_act = ra223sources.activities[source]
 
 #	Whether to look for the known source (and background) in "pardir"
 #	instead of the standard location
@@ -45,7 +45,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-s',
     metavar='source_description',
 	help='Series description of the known source. You can use one of the '
-		 'standard sources (' + ', '.join(ra223sources.known_sources) + '), '
+		 'standard sources (' + ', '.join(ra223sources.sources) + '), '
 		 'or you can use your own source. If you use your own source, be sure '
 		 'to specify the activity with the -S option. '
 		 'Defaults to "'+ source + '".')
@@ -61,7 +61,7 @@ parser.add_argument('-b',
     metavar='source_background_description',
 	help='Series description of the background to subtract from the known '
 		 'source. You can use one of the standard backgrounds '
-		 '(' + ', '.join(ra223sources.known_source_backgrounds) + '), '
+		 '(' + ', '.join(ra223sources.backgrounds) + '). '
 		 'If you use your own source (with the -S option) the background '
 		 'chosen for the measurements will also be applied to the source, and '
 		 'this option is ignored. '
@@ -71,26 +71,27 @@ parser.add_argument('-b',
 args = parser.parse_args()
 
 if args.s is not None:
+	# Use alternative source
 	source = args.s
 	if args.S is None:
-		src_act = known_source_act[source]
+		# Alternative source is a standard source, get activity
+		src_act = ra223sources.activities[source]
 
 if args.b is not None:
+	# Use alternative background for source subtraction
 	source_bkg = args.b
 
-if args.S is not None
+if args.S is not None:
+	# Alternative source is supplied by user, get activity
 	src_act = int(args.S)
 	use_own_source = True
 
 
-#   Use file handler to discover all dicom files in the known source folder
-srcfh = file_handler.FileHandler(ra223sources.known_source_dir)
-srcfh.discover()
+
 
 #   Prepare file handler and discover all dicom files in the main directory
 fh = file_handler.FileHandler(pardir)
 fh.discover()
-
 
 
 #   Get all descriptions discovered
@@ -118,7 +119,7 @@ print('')
 print('Du har valgt ' + bkg_descr + ' som baggrundsmåling!')
 print('')
 
-# Remove background from list of descriptions
+#	Remove background from list of descriptions
 descr.remove(bkg_descr)
 
 
@@ -132,29 +133,27 @@ print('Analyserer baggrund...')
 print('')
 
 
-#   First analyse the known source
-
-#   Load spectrum from known source and accompanying background
-if use_own_source
-    # A user supplied source is used, and we use the user supplied background
-    src_bkg_files = fh.files(bkg_descr) # List of files for background
+#	Load known source
+if use_own_source:
+	# User supplied source (and background)
+	src_bkg_files = fh.files(bkg_descr) # List of files for background
 	src_files = fh.files(source) # List of files for source
+
+	# Extract spectrum from first file
+	src_bkg_spec = extract_dicom_spectrum.extract_spectrum(src_bkg_files[0])
+	src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
+	for fn in src_bkg_files[1:]:
+	    src_bkg_spec = spectrum.add(src_bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
+
+	for fn in src_files[1:]:
+	    src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
+
+	#   Subtract background from source
+	src_spec = spectrum.subtract(src_spec,src_bkg_spec)
 else:
-	# Use standard sources and background for source analysis
-    src_bkg_files = srcfh.files(source_bkg)
-	src_files = srcfh.files(source)
-
-# Extract spectrum from first file
-src_bkg_spec = extract_dicom_spectrum.extract_spectrum(src_bkg_files[0])
-src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
-for fn in src_bkg_files[1:]:
-    src_bkg_spec = spectrum.add(src_bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
-
-for fn in src_files[1:]:
-    src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
-
-#   Subtract background from source
-src_spec = spectrum.subtract(src_spec,src_bkg_spec)
+	# Standard spectrum and background, load from file
+	filename = ra223sources.source_spectra + source + '_' + source_bkg + '.txt'
+	src_spec = spectrum.load_from_file(filename)
 
 
 #   Fetch spectra for background
