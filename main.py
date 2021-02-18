@@ -13,15 +13,23 @@ import shutil, os
 
 #   Setup
 
-# Maximum allowed MDA:
+#	Maximum allowed MDA [Bq] for usable energy windows:
 max_mda = 100
 
 #   Where we look for dicom files
 pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
 archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
 
-src_description = 'kilde 1' # Series description on known source we use
-src_background = 'Bg 2' # Series description on background of known source we use
+#	Series description of known source and corresponding background
+source = 'kilde 1'
+source_bkg = 'Bg 2'
+
+#	Activity of known source
+src_act = ra223sources.known_source_act[source]
+
+#	Whether to look for the known source (and background) in "pardir"
+#	instead of the standard location
+use_own_source = False
 
 
 
@@ -36,30 +44,44 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('-s',
     metavar='source_description',
-    help='Series description of the known source. The program comes shipped '
-         'with the following known sources: ' +
-         ', '.join(ra223sources.known_sources) + '.'
-         ' Defaults to "' + src_description + '".')
+	help='Series description of the known source. You can use one of the '
+		 'standard sources (' + ', '.join(ra223sources.known_sources) + '), '
+		 'or you can use your own source. If you use your own source, be sure '
+		 'to specify the activity with the -S option. '
+		 'Defaults to "'+ source + '".')
 
 parser.add_argument('-S',
     metavar='activity',
-    help='Look for the known source description in the input file directory, '
-         'rather than in the directory of known sources. This option allows '
-         'you to supply your own known source. If you use this option, '
-         'the background used for the other measurements will be used for the '
-         'source as well. The activity of the known source must be specified '
-         'as a parameter to this option in units of [Bq]',
+    help='Signal to the program that the known source should be taken from the '
+		 'measurements rather than the standard sources. The activity of the '
+		 'source must be specified in [Bq].'
     )
 
 parser.add_argument('-b',
-    metavar='bkg_src_description',
-    help='Series description of the background to remove from the known source.'
-         ' The program comes shipped with the following backgrounds: ' +
-         ', '.join(ra223sources.known_source_backgrounds) + '.'
-         ' Defaults to "' + src_background + '".')
+    metavar='source_background_description',
+	help='Series description of the background to subtract from the known '
+		 'source. You can use one of the standard backgrounds '
+		 '(' + ', '.join(ra223sources.known_source_backgrounds) + '), '
+		 'If you use your own source (with the -S option) the background '
+		 'chosen for the measurements will also be applied to the source, and '
+		 'this option is ignored. '
+		 'Defaults to "' + source_bkg + '".')
 
 
 args = parser.parse_args()
+
+if args.s is not None:
+	source = args.s
+	if args.S is None:
+		src_act = known_source_act[source]
+
+if args.b is not None:
+	source_bkg = args.b
+
+if args.S is not None
+	src_act = int(args.S)
+	use_own_source = True
+
 
 #   Use file handler to discover all dicom files in the known source folder
 srcfh = file_handler.FileHandler(ra223sources.known_source_dir)
@@ -73,9 +95,9 @@ fh.discover()
 
 #   Get all descriptions discovered
 descr = fh.descriptions()
-if args.S is not None:
+if use_own_source:
     # If a source has been supplied, remove that from the list of descriptions
-    descr.remove(args.s)
+    descr.remove(source)
 if not descr:
     #   No dicom files found
     print('Der blev ikke fundet nogle målinger. Tjek at der ligger filer med '
@@ -112,41 +134,27 @@ print('')
 
 #   First analyse the known source
 
-if args.s is not None:
-    src_description = args.s
-if args.b is not None:
-    src_background = args.b
-
 #   Load spectrum from known source and accompanying background
-if args.S is not None:
+if use_own_source
     # A user supplied source is used, and we use the user supplied background
     src_bkg_files = fh.files(bkg_descr) # List of files for background
+	src_files = fh.files(source) # List of files for source
 else:
-    src_bkg_files = srcfh.files(src_background)
+	# Use standard sources and background for source analysis
+    src_bkg_files = srcfh.files(source_bkg)
+	src_files = srcfh.files(source)
 
-src_bkg_spec = extract_dicom_spectrum.extract_spectrum(src_bkg_files[0]) # Extract for first file
+# Extract spectrum from first file
+src_bkg_spec = extract_dicom_spectrum.extract_spectrum(src_bkg_files[0])
+src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
 for fn in src_bkg_files[1:]:
     src_bkg_spec = spectrum.add(src_bkg_spec,extract_dicom_spectrum.extract_spectrum(fn)) # Add the other spectra
 
-# ...and again for source
-if args.S is not None:
-    src_files = srcfh.files(src_description)
-else:
-    src_files = fh.files(src_description)
-
-src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
 for fn in src_files[1:]:
     src_spec = spectrum.add(src_spec,extract_dicom_spectrum.extract_spectrum(fn))
 
 #   Subtract background from source
 src_spec = spectrum.subtract(src_spec,src_bkg_spec)
-
-#   Get activity of known source
-if args.S is not None:
-    src_act = int(args.S)
-else:
-    src_act = ra223sources.known_source_act[src_description]
-
 
 
 #   Fetch spectra for background
@@ -216,8 +224,8 @@ for des in descr:
         # Query user to write to log file
         yn = utils.list_choose("Hvis du synes at beregningen ser rigtig ud og den skal "
                     "gemmes, skal den skrives til loggen.",
-                    "Gem til log?", ['Ja','Nej'])
-        if yn == 0:
+                    "Gem til log?", ['Nej','Ja'])
+        if yn == 1:
             radiumlog.write(mdate, des, window, mda[window], sens[window], max_act,
                 decay_days, decay_date)
 
@@ -233,9 +241,9 @@ for des in descr:
 
 archive = utils.list_choose(
     "Hvis du er færdig med at arbejde med disse data, kan du arkivere det.",
-    "Arkiver data?", ['Ja','Nej'])
+    "Arkiver data?", ['Nej','Ja'])
 
-if archive == 0:
+if archive == 1:
     arch_today_dir = archdir+datetime.date.today().isoformat()
     os.makedirs(arch_today_dir, exist_ok=True)
     shutil.move(pardir,arch_today_dir+'\\')
