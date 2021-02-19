@@ -143,12 +143,10 @@ if use_own_source:
 	src_bkg_spec = extract_sum(src_bkg_files)
 	src_spec = extract_sum(src_files)
 
-	#   Subtract background from source
-	src_spec = spectrum.subtract(src_spec,src_bkg_spec)
 else:
 	# Standard spectrum and background, load from file
-	filename = ra223sources.source_spectra + source + '_' + source_bkg + '.txt'
-	src_spec = spectrum.load_from_file(filename)
+	src_spec = spectrum.load_from_file(ra223sources.source_spectra + source + '.txt')
+	src_bkg_spec = spectrum.load_from_file(ra223sources.source_spectra + source_bkg + '.txt')
 
 
 #   Fetch spectra for background
@@ -156,23 +154,21 @@ bkg_files = fh.files(bkg_descr) # List of files for background
 bkg_spec = extract_sum(bkg_files)
 
 
-sens = {}
 mda = {}
 windows = [] # Windows we will end up using
 
 #   In each window, measure sensitivity and MDA
 for window in physics.windows['Ra223']:
-    print(' - {}keV - {}keV:'.format(window[0],window[1]))
-    src_rate = src_spec.window_rate(window)
-    sens[window] = src_rate/src_act
-    mda[window] = activity.mda_simple(bkg_spec, sens[window], window)
-    print('     MDA i vindue: {:.0f}Bq'.format(mda[window]))
-    if mda[window] > max_mda:
-        print('     Vindue ignoreres pga. dårlig MDA')
-    else:
-        windows.append(window)
+	print(' - {}keV - {}keV:'.format(window[0],window[1]))
+	mda_res = activity.mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, window)
+	mda[window] = mda_res
+	print('     MDA i vindue: {:.0f}Bq'.format(mda[window].mda))
+	if mda[window].mda > max_mda:
+		print('     Vindue ignoreres pga. dårlig MDA')
+	else:
+		windows.append(window)
 
-    print('')
+	print('')
 
 input("Tryk Enter for at fortsætte...")
 print('')
@@ -181,53 +177,49 @@ print('')
 
 #   Measure activity for each description
 for des in descr:
-    print('Analyserer serie "{}"'.format(des))
-    print('')
+	print('Analyserer serie "{}"'.format(des))
+	print('')
 
-    #   Load spectra
-    ser_files = fh.files(des)
-    ser_spec = extract_sum(ser_files)
+	#   Load spectra
+	ser_files = fh.files(des)
+	ser_spec = extract_sum(ser_files)
 
-    #   Subtract background
-    ser_spec = spectrum.subtract(ser_spec, bkg_spec)
+	#   Go through windows:
+	max_act = 0
+	for window in windows:
+		print(' - {}keV - {}keV:'.format(window[0],window[1]))
+		act_res = activity.activity_analysis(
+			bkg_spec,ser_spec, mda[window].sens, mda[window].dsens, window)
+		if ((act_res.act >= max_act) and (act_res.act >= mda[window].mda)):
+			max_act = act_res.act
+		print('     Net. aktivitet i vindue: {:.0f} +/- {:.0f}Bq'.format(act_res.act,act_res.dact))
+		print('')
 
-    #   Go through windows:
-    max_act = 0
-    for window in windows:
-        print(' - {}keV - {}keV:'.format(window[0],window[1]))
-        ser_rate = ser_spec.window_rate(window)
-        ser_act = ser_rate/sens[window]
-        if ((ser_act >= max_act) and (ser_act >= mda[window])):
-            max_act = ser_act
-        print('     Net. aktivitet i vindue: {:.0f}Bq'.format(ser_act))
+	if (max_act > physics.acc_act['Ra223']):
+		print('Aktivitet i serie "{}": {:.0f}Bq'.format(des, max_act))
+		decay_days = activity.decay(
+		max_act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
+		mdate = ser_spec.mdate # Date of measurement
+		decay_date = mdate + datetime.timedelta(days=decay_days)
+		print('Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
+		print('')
 
-        print('')
-
-    if (max_act > physics.acc_act['Ra223']):
-        print('Aktivitet i serie "{}": {:.0f}Bq'.format(des, max_act))
-        decay_days = activity.decay(
-            max_act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
-        mdate = ser_spec.mdate # Date of measurement
-        decay_date = mdate + datetime.timedelta(days=decay_days)
-        print('Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
-        print('')
-
-        # Query user to write to log file
-        yn = utils.list_choose("Hvis du synes at beregningen ser rigtig ud og den skal "
-                    "gemmes, skal den skrives til loggen.",
-                    "Gem til log?", ['Nej','Ja'])
-        if yn == 1:
-            radiumlog.write(mdate, des, window, mda[window], sens[window], max_act,
-                decay_days, decay_date)
+		# Query user to write to log file
+		yn = utils.list_choose("Hvis du synes at beregningen ser rigtig ud og den skal "
+														"gemmes, skal den skrives til loggen.",
+														"Gem til log?", ['Nej','Ja'])
+		if yn == 1:
+			radiumlog.write(mdate, des, window, mda[window], sens[window], max_act,
+				decay_days, decay_date)
 
 
 
-    else:
-        print('Serie "{}" er ikke mærkbart forurenet.'.format(des))
+	else:
+		print('Serie "{}" er ikke mærkbart forurenet.'.format(des))
 
-    input("Tryk Enter for at fortsætte...")
-    print('')
-    print('')
+	input("Tryk Enter for at fortsætte...")
+	print('')
+	print('')
 
 
 archive = utils.list_choose(

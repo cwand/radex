@@ -22,15 +22,12 @@ for bkg in ra223sources.backgrounds:
 	filename = ra223sources.source_spectra + bkg + '.txt'
 	bkg_spec.print_to_file(filename)
 
-	for src in ra223sources.sources:
+for src in ra223sources.sources:
 
-		#	Load source spectra from dicom files
-		src_files = fh.files(src)
-		src_spec = extract_sum(src_files)
+	#	Load source spectra from dicom files
+	src_files = fh.files(src)
+	src_spec = extract_sum(src_files)
 
-		#	Subtract background from source
-		src_spec = spectrum.subtract(src_spec,bkg_spec)
-
-		#	Save resulting spectrum to file
-		filename = ra223sources.source_spectra + src + '_' + bkg + '.txt'
-		src_spec.print_to_file(filename)
+	#	Save resulting spectrum to file
+	filename = ra223sources.source_spectra + src + '.txt'
+	src_spec.print_to_file(filename)

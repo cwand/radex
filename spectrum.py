@@ -86,7 +86,7 @@ def add(spec1, spec2):
     if not np.array_equal(spec1.rate_by_kev[:,0],spec2.rate_by_kev[:,0]):
         raise ValueError("Spectra must have identical energy bins when adding")
 
-    res_spec = spec1.rate_by_kev
+    res_spec = spec1.rate_by_kev.copy()
     res_spec[:,1] += spec2.rate_by_kev[:,1]
     count_time = spec1.count_time
     mdate = spec1.mdate
@@ -110,7 +110,7 @@ def subtract(spec1, spec2):
     if not np.array_equal(spec1.rate_by_kev[:,0],spec2.rate_by_kev[:,0]):
         raise ValueError("Spectra must have identical energy bins when subtracting")
 
-    res_spec = spec1.rate_by_kev
+    res_spec = spec1.rate_by_kev.copy()
     res_spec[:,1] -= spec2.rate_by_kev[:,1]
     count_time = spec1.count_time
     mdate = spec1.mdate
