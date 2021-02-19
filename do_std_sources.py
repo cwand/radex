@@ -2,36 +2,31 @@
 
 import spectrum
 import ra223sources
-import file_handler
-import extract_dicom_spectrum
+from file_handler import FileHandler
+from extract_dicom_spectrum import extract_sum
 
 
 #	Initiate file handler
-fh = file_handler.FileHandler(ra223sources.source_dir)
+fh = FileHandler(ra223sources.source_dir)
 fh.discover()
 
 
 #	Go through each source-background combination
-for src in ra223sources.sources:
+for bkg in ra223sources.backgrounds:
 
-	for bkg in ra223sources.backgrounds:
+	#	Load background spectra from dicom files
+	bkg_files = fh.files(bkg)
+	bkg_spec = extract_sum(bkg_files)
+
+	#	Print background spectrum separately
+	filename = ra223sources.source_spectra + bkg + '.txt'
+	bkg_spec.print_to_file(filename)
+
+	for src in ra223sources.sources:
 
 		#	Load source spectra from dicom files
 		src_files = fh.files(src)
-		# Extract first spectrum...
-		src_spec = extract_dicom_spectrum.extract_spectrum(src_files[0])
-		# ... and add the rest
-		for fn in src_files[1:]:
-		    src_spec = spectrum.add(
-				src_spec,extract_dicom_spectrum.extract_spectrum(fn))
-
-		#	Load background spectra from dicom files
-		bkg_files = fh.files(bkg)
-		bkg_spec = extract_dicom_spectrum.extract_spectrum(bkg_files[0])
-		for fn in bkg_files[1:]:
-		    bkg_spec = spectrum.add(
-				bkg_spec,extract_dicom_spectrum.extract_spectrum(fn))
-
+		src_spec = extract_sum(src_files)
 
 		#	Subtract background from source
 		src_spec = spectrum.subtract(src_spec,bkg_spec)
