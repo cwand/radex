@@ -85,3 +85,18 @@ def extract_spectrum(file_name):
     #spec[:,1] = cps[:,1]*frame_duration/1000 # Convert from cps to counts
 
     return spectrum.Spectrum(spec, frame_duration/1000, mdate )
+
+
+# -------------------------------
+
+#	Extract spectra for a list of files and return the sum of all the spectra
+def extract_sum(filenames):
+
+	#	Extract first spectrum
+	spec = extract_spectrum(filenames[0])
+
+	#	Add the rest
+	for fn in filenames[1:]:
+		spec = spectrum.add(spec, extract_spectrum(fn))
+
+	return spec

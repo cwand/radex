@@ -2,7 +2,7 @@ import utils
 import spectrum
 import activity
 from file_handler import FileHandler
-from extract_dicom_spectrum import extract_spectrum
+from extract_dicom_spectrum import extract_sum
 import argparse
 import physics
 import ra223sources
@@ -139,14 +139,9 @@ if use_own_source:
 	src_bkg_files = fh.files(bkg_descr) # List of files for background
 	src_files = fh.files(source) # List of files for source
 
-	# Extract spectrum from first file
-	src_bkg_spec = extract_spectrum(src_bkg_files[0])
-	src_spec = extract_spectrum(src_files[0])
-	for fn in src_bkg_files[1:]:
-	    src_bkg_spec = spectrum.add(src_bkg_spec,extract_spectrum(fn)) # Add the other spectra
-
-	for fn in src_files[1:]:
-	    src_spec = spectrum.add(src_spec,extract_spectrum(fn))
+	# Extract the combined spectra (all files added)
+	src_bkg_spec = extract_sum(src_bkg_files)
+	src_spec = extract_sum(src_files)
 
 	#   Subtract background from source
 	src_spec = spectrum.subtract(src_spec,src_bkg_spec)
@@ -158,9 +153,8 @@ else:
 
 #   Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
-bkg_spec = extract_spectrum(bkg_files[0]) # Extract for first file
-for fn in bkg_files[1:]:
-    bkg_spec = spectrum.add(bkg_spec,extract_spectrum(fn)) # Add the other spectra
+bkg_spec = extract_sum(bkg_files)
+
 
 sens = {}
 mda = {}
@@ -192,9 +186,7 @@ for des in descr:
 
     #   Load spectra
     ser_files = fh.files(des)
-    ser_spec = extract_spectrum(ser_files[0])
-    for fn in ser_files[1:]:
-        ser_spec = spectrum.add(ser_spec,extract_spectrum(fn))
+    ser_spec = extract_sum(ser_files)
 
     #   Subtract background
     ser_spec = spectrum.subtract(ser_spec, bkg_spec)
