@@ -41,8 +41,10 @@ def mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, window):
 	s = r_s/src_act		# Sensitivity [cps/Bq]
 	ds = dr_s/src_act	# Uncertainty on sensitivity
 
-	m = 3.0 * math.sqrt(r_b/t_b)	# Minimum detectable count rate
-	dm = m*dr_b/(2.0*r_b)		# Uncertainty on minimum detectable count rate
+	l = 3.0 * math.sqrt(r_b/t_b)	# Detection limit (Simple)
+	dl = l*dr_b/(2.0*r_b)		# Uncertainty on minimum detectable count rate
+	#l = 2.71 + 4.65 * math.sqrt(r_b/t_b)	# (Currie variation)
+	#dl = 2.325 / (math.sqrt(r_b*t_b))
 
 	M = m/s	# MDA
 	dM = math.sqrt( dm**2/s**2 + (M*ds)**2/s**2 )
