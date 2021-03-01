@@ -154,21 +154,10 @@ bkg_files = fh.files(bkg_descr) # List of files for background
 bkg_spec = extract_sum(bkg_files)
 
 
-mda = {}
-windows = [] # Windows we will end up using
-
-#   In each window, measure sensitivity and MDA
-for window in physics.windows['Ra223']:
-	print(' - {}keV - {}keV:'.format(window[0],window[1]))
-	mda_res = activity.mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, window)
-	mda[window] = mda_res
-	print('     MDA i vindue: {:.0f}Bq'.format(mda[window].mda))
-	if mda[window].mda > max_mda:
-		print('     Vindue ignoreres pga. dårlig MDA')
-	else:
-		windows.append(window)
-
-	print('')
+# Calculate MDA and report to user
+mda_res = activity.mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, physics.windows['Ra223'])
+print('MDA: {:.0f}Bq'.format(mda_res.mda))
+print('')
 
 input("Tryk Enter for at fortsætte...")
 print('')
@@ -184,21 +173,16 @@ for des in descr:
 	ser_files = fh.files(des)
 	ser_spec = extract_sum(ser_files)
 
-	#   Go through windows:
-	max_act = 0
-	for window in windows:
-		print(' - {}keV - {}keV:'.format(window[0],window[1]))
-		act_res = activity.activity_analysis(
-			bkg_spec,ser_spec, mda[window].sens, mda[window].dsens, window)
-		if ((act_res.act >= max_act) and (act_res.act >= mda[window].mda)):
-			max_act = act_res.act
-		print('     Net. aktivitet i vindue: {:.0f} +/- {:.0f}Bq'.format(act_res.act,act_res.dact))
-		print('')
 
-	if (max_act > physics.acc_act['Ra223']):
-		print('Aktivitet i serie "{}": {:.0f}Bq'.format(des, max_act))
+	act_res = activity.activity_analysis(
+		bkg_spec,ser_spec, mda_res.sens, mda_res.dsens, physics.windows['Ra223'])
+	print('     Net. aktivitet: {:.0f} +/- {:.0f}Bq'.format(act_res.act,act_res.dact))
+	print('')
+
+	if (act_res.act > physics.acc_act['Ra223']):
+		print('Aktivitet i serie "{}": {:.0f}Bq'.format(des, act_res.act))
 		decay_days = activity.decay(
-		max_act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
+			act_res.act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
 		mdate = ser_spec.mdate # Date of measurement
 		decay_date = mdate + datetime.timedelta(days=decay_days)
 		print('Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
@@ -216,6 +200,7 @@ for des in descr:
 
 	else:
 		print('Serie "{}" er ikke mærkbart forurenet.'.format(des))
+
 
 	input("Tryk Enter for at fortsætte...")
 	print('')

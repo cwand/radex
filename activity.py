@@ -20,19 +20,24 @@ class MDAResults:
 #		+	src_spec:	the gross spectrum measured on the known source (incl background)
 #		+	src_bkg_spec: the background spectrum of the known source (may be the same as bkg_spec if source was measured on the same occasion)
 #		+	src_act: the activity of the known source
-#		+	window: the energy window to analyse as a tuple (e.g. (200,250))
+#		+	windows: the energy window to analyse as a list of tuples(e.g. [(200,250),(360,380)])
 #	Returns:
 #		An instance of the MDAResults class
-def mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, window):
+def mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, windows):
 
 	# Net source spectrum
 	net_spec = spectrum.subtract(src_spec, src_bkg_spec)
 
-	#	Get rates in window:
-	r_s = net_spec.window_rate(window)			# Net source rate
-	r_bs = src_bkg_spec.window_rate(window)	# Source background rate
+	#	Get rate in windows
+	r_s = 0			# Net source rate
+	r_bs = 0		#	Source background rate
+	r_b = 0			#	Background rate
+	for window in windows:
+		r_s += net_spec.window_rate(window)
+		r_bs += src_bkg_spec.window_rate(window)
+		r_b += bkg_spec.window_rate(window)
+
 	t_s = net_spec.count_time 							# Equal to t_bs for subtraction to work
-	r_b = bkg_spec.window_rate(window)			#	Background rate
 	t_b = bkg_spec.count_time
 
 	dr_b = cs.sigma_rate(r_b, t_b)	# Uncertainty on background rate
@@ -46,8 +51,8 @@ def mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, window):
 	#l = 2.71 + 4.65 * math.sqrt(r_b/t_b)	# (Currie variation)
 	#dl = 2.325 / (math.sqrt(r_b*t_b))
 
-	M = m/s	# MDA
-	dM = math.sqrt( dm**2/s**2 + (M*ds)**2/s**2 )
+	M = l/s	# MDA
+	dM = math.sqrt( dl**2/s**2 + (M*ds)**2/s**2 )
 
 	return MDAResults(s,ds,M,dM)
 
@@ -77,14 +82,17 @@ class ActivityResults:
 		self.dact	= dact
 
 
-def activity_analysis(bkg_spec, spec, sens, dsens, window):
+def activity_analysis(bkg_spec, spec, sens, dsens, windows):
 
 	#	Subtract background from spectrum
 	net_spec = spectrum.subtract(spec, bkg_spec)
 
-	# Get rates in window
-	r 	= net_spec.window_rate(window)	# Net counting rate
-	rb 	= bkg_spec.window_rate(window)	# Background rate
+	# Get rate in windows
+	r 	= 0		# Net counting rate
+	rb 	= 0		# Background rate
+	for window in windows:
+		r 	+= net_spec.window_rate(window)
+		rb 	+= bkg_spec.window_rate(window)
 	t		= net_spec.count_time	# Equal for background
 
 	dr = cs.sigma_rate_bkg(r, rb, t)		# Uncertainty on counting rate

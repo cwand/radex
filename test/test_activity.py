@@ -18,7 +18,7 @@ class TestActivityMDAAnalysis(unittest.TestCase):
 			spec_bkg = spectrum.Spectrum(bkg,t1)
 			spec_src = spectrum.Spectrum(src,t1)
 			spec_src_bkg = spectrum.Spectrum(src_bkg,t1)
-			mda = activity.mda_analysis(spec_bkg, spec_src, spec_src_bkg, 100.0, (2,6))
+			mda = activity.mda_analysis(spec_bkg, spec_src, spec_src_bkg, 100.0, [(2,4),(5,6)])
 
 			self.assertAlmostEqual(mda.sens, 0.45)
 			self.assertAlmostEqual(mda.dsens, 0.051234753829798)

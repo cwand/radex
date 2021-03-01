@@ -17,7 +17,7 @@ class Spectrum:
 
     def __init__(self, rate_by_kev, count_time, mdate = None):
 
-        self.rate_by_kev    =   rate_by_kev
+        self.rate_by_kev    =   rate_by_kev.copy()
         self.count_time     =   count_time
         self.mdate          =   mdate
 
