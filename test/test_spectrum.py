@@ -15,6 +15,15 @@ class TestSpectrum(unittest.TestCase):
 		c1[2,1] = 100
 		self.assertEqual(spec1.rate_by_kev[2,1],5)
 
+	def test_rate_by_kev_correct_size(self):
+		c1 = np.zeros((4,3))
+		c2 = np.zeros((1,2,3))
+		t1 = 100
+		d1 = datetime.date(2020,2,1)
+		self.assertRaises(ValueError, spectrum.Spectrum, c1, t1, d1)
+		self.assertRaises(ValueError, spectrum.Spectrum, c2, t1, d1)
+
+
 	def test_add_spectrum(self):
 		c1 = np.arange(6).reshape(-1,2)
 		t1 = 100
