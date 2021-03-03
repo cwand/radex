@@ -1,5 +1,6 @@
 import utils
 import spectrum
+import spectrum_analysis_model as sam
 import activity
 from file_handler import FileHandler
 from extract_dicom_spectrum import extract_sum
@@ -149,14 +150,36 @@ else:
 	src_bkg_spec = spectrum.load_from_file(ra223sources.source_spectra + source_bkg + '.txt')
 
 
-#   Fetch spectra for background
+
+# Calculate sensitivity (cps/Bq) from known source
+# Net source spectrum
+net_src_spec = spectrum.subtract(src_spec, src_bkg_spec)
+
+#	Get rate in windows
+r_s = 0			# Net source rate
+for window in physics.windows['Ra223']:
+	r_s += net_src_spec.window_rate(window)
+
+sens = r_s/src_act		# Sensitivity [cps/Bq]
+
+# Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
 bkg_spec = extract_sum(bkg_files)
 
 
-# Calculate MDA and report to user
-mda_res = activity.mda_analysis(bkg_spec, src_spec, src_bkg_spec, src_act, physics.windows['Ra223'])
-print('MDA: {:.0f}Bq'.format(mda_res.mda))
+# Prepare Spectrum Analysis Model
+m = sam.SpectrumAnalysisModel()
+m.set_windows(physics.windows['Ra223'])
+m.set_background(bkg_spec)
+
+
+
+# Calculate detection limit/MDA and report to user
+mda = m.detection_limit()/sens
+
+print('Følsomhed: {:.3f}cps/Bq'.format(sens))
+#print('Kritisk niveau: {:.0f}Bq'.format(m.critical_level()/sens))
+print('MDA:       {:.0f}Bq'.format(mda))
 print('')
 
 input("Tryk Enter for at fortsætte...")
@@ -173,35 +196,42 @@ for des in descr:
 	ser_files = fh.files(des)
 	ser_spec = extract_sum(ser_files)
 
+	m.set_spectrum(ser_spec)
+	res = m.analyse_spectrum()
+	act = res.net_signal/sens
+	conf_act = res.conf/sens
+	if res.detected:
+		# Signal above critical level
 
-	act_res = activity.activity_analysis(
-		bkg_spec,ser_spec, mda_res.sens, mda_res.dsens, physics.windows['Ra223'])
-	print('     Net. aktivitet: {:.0f} +/- {:.0f}Bq'.format(act_res.act,act_res.dact))
-	print('')
+		print('   Netto aktivitet: {:.0f} +/- {:.0f}Bq'.format(act,conf_act))
 
-	if (act_res.act > physics.acc_act['Ra223']):
-		print('Aktivitet i serie "{}": {:.0f}Bq'.format(des, act_res.act))
-		decay_days = activity.decay(
-			act_res.act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
-		mdate = ser_spec.mdate # Date of measurement
-		decay_date = mdate + datetime.timedelta(days=decay_days)
-		print('Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
-		print('')
+		if (act+conf_act) >  physics.acc_act['Ra223']:
+			# Net activity above acceptable level, calculate disposal date
+			decay_days = activity.decay(
+				act+conf_act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
+			mdate = ser_spec.mdate # Date of measurement
+			decay_date = mdate + datetime.timedelta(days=decay_days)
+			print('   Bortskaffelse d. {}'.format(decay_date.strftime('%d-%m-%Y')))
+			print('')
 
-		# Query user to write to log file
-		yn = utils.list_choose("Hvis du synes at beregningen ser rigtig ud og den skal "
-														"gemmes, skal den skrives til loggen.",
-														"Gem til log?", ['Nej','Ja'])
-		if yn == 1:
-			radiumlog.write(mdate, des, window, mda[window], sens[window], max_act,
-				decay_days, decay_date)
+			# Query user to write to log file
+			yn = utils.list_choose("Hvis du synes at beregningen ser rigtig ud og den skal "
+															"gemmes, skal den skrives til loggen.",
+															"Gem til log?", ['Nej','Ja'])
+			if yn == 1:
+				radiumlog.write(mdate, des, window, mda[window], sens[window], max_act,
+					decay_days, decay_date)
 
-
+		else:
+			print('   Aktiviteten er under det maksimalt accepterede niveau. '
+								'Kan bortskaffes nu.')
 
 	else:
-		print('Serie "{}" er ikke mærkbart forurenet.'.format(des))
+		print('Ingen aktivitet registreret (øvre grænse: {:.0f}Bq)'.format(act+conf_act))
+		print('Kan bortskaffes nu.')
 
 
+	print('')
 	input("Tryk Enter for at fortsætte...")
 	print('')
 	print('')

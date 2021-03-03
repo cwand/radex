@@ -18,6 +18,11 @@ class SpectrumAnalysisResult:
 		# 	In this case the conf value is the width of the confidence interval.
 		#		E.g: If net_signal = 10 and conf = 3, then the true value of the signal
 		#		is with probability 1-gamma in the interval [7,13]
+		# If detected = False:
+		#		In this case the conf value is the distance from the net signal value
+		#		to the upper limit bound on the true signal value.
+		#		E.g.: If net_signal = 6 and conf = 2, then the registered signal had a
+		#		value of 6, while the true signal is with probability 1-gamma below 8.
 
 
 # Main analysis class used for performing the analysis
@@ -143,7 +148,7 @@ class SpectrumAnalysisModel:
 		else:
 			# Signal not detected, calculate upper limit
 			z = norm.ppf(1.0 - self.gamma)
-			cl_rate = (S + z*sigma)/count_time
+			cl_rate = z*sigma/count_time
 			det = False
 
 		return SpectrumAnalysisResult(det, S_rate, cl_rate)

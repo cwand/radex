@@ -63,15 +63,15 @@ class Spectrum:
     #    plt.show()
 
 #   Load a spectrum from a file saved by using the printToFile method
-	def load_from_file(file_name):
+def load_from_file(file_name):
 
-		#   Read spectrum part of file
-		spectrum = np.loadtxt(file_name,delimiter='\t',skiprows=2)
+	#   Read spectrum part of file
+	spectrum = np.loadtxt(file_name,delimiter='\t',skiprows=2)
 
-		#   Read count time from the first line of the file
-		f = open(file_name)
-		count_time = float(f.readline().rstrip())
-		return Spectrum(spectrum, count_time)
+	#   Read count time from the first line of the file
+	f = open(file_name)
+	count_time = float(f.readline().rstrip())
+	return Spectrum(spectrum, count_time)
 
 #   Add the counts of two spectra together. Meant to be used for when multiple
 #   detectors have measured separate spectra at the same time, which should be
