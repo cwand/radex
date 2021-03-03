@@ -49,7 +49,7 @@
 
 % Dokumentet begynder her
 
-\section*{Brug af programmet}
+\section*{Om Radex}
 
 \radex{} anvendes til at detektere tilstedeværelsen af isotopen 
 \isotope[223]{Ra}.
@@ -93,5 +93,124 @@ Python-modulet \texttt{pyinstaller}:
 Når installationen er fuldført findes en ny mappe med navnet \texttt{dist}, der 
 indeholder alt, der er nødvendigt for at køre programmet. Denne mappe kan så 
 kopieres over på den tiltænkte arbejdsstation, og programmet kan køres derfra.
+
+
+\section*{Brug af programmet}
+
+Når programmet starter, vil den først lede efter dicom-filer i den mappe, der 
+er blevet angivet efter beskrivelsen ovenfor. Filerne samles efter dicom-taggen 
+\emph{Series description}. Det er altså vigtigt at forskellige målinger 
+navngives forskelligt. Programmet vil derefter bede brugeren om at specificere 
+en serie som baggrundsmåling, og denne vil blive brugt på alle de resterende 
+serier som baggrund. Ønsker man at anvende forskellige baggrunde på forskellige 
+målinger skal man altså køre programmet én gang for hver baggrund.
+
+Når baggrunden er valgt vil programmet give brugeren information om følsomheden 
+(i enheder af $\si{cps/Bq}$) samt \emph{Minimum Detectable Activity}, eller 
+MDA, i enheder af $\si{Bq}$. Følsomheden beregnes ud fra en kendt kilde, som 
+kommer med programmet. Man kan også sætte en ny kilde til at beregne 
+følsomheden. Dette beskrives senere.
+
+Derefter går programmet gennem alle serier den kan finde (ud over 
+baggrundsserien) i de filer, der er givet som input. For hver serie 
+rapporteres, om der bliver registreret aktivitet, samt hvornår aktiviteten kan 
+forventes at være nået under et acceptabelt niveau ($300\si{Bq}$ som 
+udgangspunkt). Hvis der bliver fundet aktivitet kan man vælge at logge 
+registreringen i et medfølgende Excel-dokument. Når alle serierne er analyseret 
+afslutter programmet med at spørge brugeren, om målingerne skal arkiveres. 
+Vælges dette flyttes målingerne til arkiv-mappen i en mappe, der svarer til 
+datoen for kørslen af programmet. Ellers lader programmet filerne ligge.
+
+\section*{Avanceret brug}
+
+Programmet kommer med et par avancerede funktioner. For at bruge disse 
+funktioner skal programmet køres med inputargumenter, fx fra en kommandolinje.
+
+\subsection*{Brug af egen kilde}
+
+Hvis man ønsker at anvende sin egen kilde med en kendt aktivitet (til 
+kalibrering af følsomhed), gøres dette med argumenterne \texttt{-S} og 
+\texttt{-s} således:
+
+\begin{verbatim}
+	>>> python main.py -s kilde_maaling -S 10342
+\end{verbatim}
+
+Programmet vil så bruge dicom-filerne fra serien med Series description 
+\texttt{kilde\_maaling} som kilde, og bruge aktiviteten $10342\si{Bq}$ til at 
+sætte følsomheden. Når man bruger sin egen kilde med \texttt{-S} argumentet vil 
+baggrunden der vælges når programmet starter op også blive anvendt på den 
+kendte kilde.
+
+\subsection*{Andre funktioner}
+
+Man kan få hjælp til andre funktioner i programmet ved at bruge argumentet 
+\texttt{-h} således:
+
+\begin{verbatim}
+	>>> python main.py -h
+\end{verbatim}
+
+hvorefter en hjælpetekst vises.
+
+\section*{Matematisk baggrund}
+
+Den tællestatistiske baggrund for programmet er taget fra ref. 
+\cite{currie1968}, og er kort summeret her.
+
+Den primære data vi arbejder med er tælletal (counts), som med kendt måletid og 
+følsomhed nemt kan omsættes til en aktivitet. Vi ignorerer usikkerheden på 
+begge disse to omsætningsparametre. Der er tre tælletal, vi skal holde styr på: 
+Baggrunden $B$, signalet $S$ og det totale tælletal $G = B + S$. Vi kan måle 
+$B$ og $G$, men $S = G - B$ kan ikke måles direkte.
+
+Vi antager, at tælletallene er Poisson-fordelte, altså at $B$ kan tænkes som et 
+tilfældigt tal trukket fra en Poissonfordeling med middelværdi og varians 
+$\mu_B$, og ligeledes for $G$ og $S$. Dermed vil den estimerede 
+standardafvigelse på baggrunden være $\sigma_B = \sqrt{B}$, mens den estimerede 
+standardafvigelse på signalet er $\sigma_S = \sqrt{B + G}$.
+
+Spørgsmålet, som ref. \cite{currie1968} forsøger at besvare er, hvornår vi kan 
+sige at et givet signal $S$ er lig med en detektion og hvor stor usikkerhed vi 
+skal give til målingen. I den forbindelse fastsætter vi to grænser: Den første 
+er det kritiske niveau $L_C$. Hvis $S > L_C$ vil vi sige, at vi har observeret 
+et signal, der ikke blot er et udsving i baggrunden. Den anden grænse er 
+detektionsgrænsen $L_D$. Den angiver, hvor stort et tælletal en kilde skal 
+have, før vi \emph{a priori} kan forvente at observere et signal, der er større 
+end $L_C$.
+
+Med til disse grænser hører et valg om, hvor stor tolerance vi vil tillade for 
+at lave fejl af type I ($\alpha$, falsk positiv) og type II ($\beta$, falsk 
+negativ). \radex{} sætter $\alpha = \beta = 0.05$. De to grænser kan så 
+beregnes med formlerne
+
+\begin{align}
+	L_C &= k_\alpha \sqrt{2B} \\
+	L_D &= L_C + \frac{k_\beta^2}{2} \left( 1 + \sqrt{ 1 + 
+	\frac{4L_C}{k_\beta^2} + \frac{4L_C^2}{k_\alpha^2 k_\beta^2} } \right),
+\end{align}
+hvor
+\begin{equation}
+	\int_{-\infty}^{k_\alpha} f(x) dx = 1 - \alpha,
+\end{equation}
+og $f(x)$ er en standardnormalfordeling. $k_\beta$ er defineret på samme vis.
+
+Hvis $S > L_C$ angives et observeret signal af værdien $S \pm 
+z_{1-\gamma/2}\sigma_S$, hvor
+\begin{equation}
+	\int_{-z_{1-\gamma/2}}^{z_{1-\gamma/2}} f(x) dx = 1-\gamma.
+\end{equation}
+
+Hvis i stedet $S \leq L_C$ angives intet signal, og der rapporteres en øvre 
+grænse på $S + z_{1-\gamma}' \sigma_S$, hvor
+\begin{equation}
+	\int_{-\infty}^{z_{1-\gamma}'} f(x) dx = 1-\gamma.
+\end{equation}
+ 
+
+
+\bibliographystyle{JHEP}
+\bibliography{radex}
+
 
 \end{document}
