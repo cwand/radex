@@ -14,9 +14,6 @@ import shutil, os
 
 #   Setup
 
-#	Maximum allowed MDA [Bq] for usable energy windows:
-max_mda = 100
-
 #   Where we look for dicom files
 pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
 archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'

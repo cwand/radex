@@ -1,0 +1,97 @@
+\documentclass[a4paper,article]{memoir}
+
+% Pakker, der skal bruges sideopsÃ¦tning, billeder m.m.
+\usepackage[latin1]{inputenc}
+\usepackage[danish]{babel}
+%\renewcommand\danishhyphenmins{22}
+\usepackage[T1]{fontenc}
+\usepackage[margin=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xspace}
+\usepackage{color}
+\usepackage{array,booktabs}
+\usepackage{url}
+\usepackage{csquotes}
+
+% Matematik og symboler
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{listings}
+\usepackage{verbatim}
+
+% Fysik pakker
+\usepackage{physics}
+\usepackage{siunitx}
+\usepackage{isotope}
+
+% Pakke der kan lave rette-noter i margin
+\usepackage[draft,danish]{fixme}
+
+\newcommand{\radex}{\emph{Radex}}
+
+% ====================================================================
+% HUSK AT Ã†NDRE TITEL OG FORFATTER
+\geometry{headheight=1cm}
+\title{Radex} 	% Dokumentes Titel
+\author{Christian Walther Andersen}		% Dokumentets forfatter
+%%% \date{i dag}		% Her kan datoen indsÃ¦ttes, men udelades kommandoen indsÃ¦tter den altid dags dato
+% ====================================================================
+
+\begin{document}
+	
+\setlength{\parindent}{0pt}
+
+\maketitle
+\fancybreak{$*\quad*\quad*$}
+\vspace{5mm}
+
+% Dokumentet begynder her
+
+\section*{Brug af programmet}
+
+\radex{} anvendes til at detektere tilstedeværelsen af isotopen 
+\isotope[223]{Ra}.
+Det tiltænkte brugsscenarie er, at en mængde af affald, tøj e.l., der har været
+i nærkontakt med \isotope[223]{Ra}, skal sikres, inden det smides ud, 
+genanvendes e.l. Affaldet scannes med et gamma-kamera, og billedet, 
+der også indeholder det målte spektrum i dicom-format, analyseres for spor af 
+\isotope[223]{Ra}. Det er denne sidste opgave, der kan klares af \radex{}.
+
+
+\section*{Download og installation}
+
+Kildekoden kan downloades fra GitHub: \url{https://github.com/cwand/radex}. 
+\radex{} er skrevet i Python og kan bruges uden installation. Der er dog et par 
+variable, der skal angives i kildekoden, inden programmet er helt klar til at 
+køre.
+
+\subsection*{Indstilling af filstier}
+
+\radex{} kigger efter dicom-billeder i en filsti, der er angivet i filen 
+\texttt{main.py}. Filstierne er angivet tæt på toppen af filen. Variablen 
+\texttt{pardir} angiver hvor \radex{} skal kigge efter dicom-filer. \radex{} 
+leder i undermapper efter alle filer med filendelsen \texttt{.dcm}. Også 
+baggrundsmålinger skal ligge i denne filsti.
+
+Variablen \texttt{archdir} angiver, hvor \radex{} lægger dicom-filerne, når den 
+er færdig med analysen. Når analysen er færdig flyttes indholdet af 
+\texttt{pardir}-mappen til \texttt{archdir} (man kan vælge dette fra i 
+slutningen af analysen, hvis dette ikke ønskes).
+
+\subsection*{Installation}
+
+Hvis man ønsker at installere \radex{}, fx hvis programmet skal bruges på en 
+arbejdsstation, der ikke har Python installeret, kan dette gøres ved brug af 
+Python-modulet \texttt{pyinstaller}:
+
+\begin{verbatim}
+	>>> pyinstaller main.spec
+\end{verbatim}
+
+Når installationen er fuldført findes en ny mappe med navnet \texttt{dist}, der 
+indeholder alt, der er nødvendigt for at køre programmet. Denne mappe kan så 
+kopieres over på den tiltænkte arbejdsstation, og programmet kan køres derfra.
+
+\end{document}
