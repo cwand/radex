@@ -139,7 +139,7 @@ kalibrering af følsomhed), gøres dette med argumenterne \texttt{-S} og
 Programmet vil så bruge dicom-filerne fra serien med Series description 
 \texttt{kilde\_maaling} som kilde, og bruge aktiviteten $10342\si{Bq}$ til at 
 sætte følsomheden. Når man bruger sin egen kilde med \texttt{-S} argumentet vil 
-baggrunden der vælges når programmet starter op også blive anvendt på den 
+baggrunden, der vælges når programmet starter op, også blive anvendt på den 
 kendte kilde.
 
 \subsection*{Andre funktioner}
@@ -185,28 +185,23 @@ negativ). \radex{} sætter $\alpha = \beta = 0.05$. De to grænser kan så
 beregnes med formlerne
 
 \begin{align}
-	L_C &= k_\alpha \sqrt{2B} \\
+	L_C &= k_\alpha \sqrt{2B}, \\
 	L_D &= L_C + \frac{k_\beta^2}{2} \left( 1 + \sqrt{ 1 + 
 	\frac{4L_C}{k_\beta^2} + \frac{4L_C^2}{k_\alpha^2 k_\beta^2} } \right),
 \end{align}
-hvor
-\begin{equation}
-	\int_{-\infty}^{k_\alpha} f(x) dx = 1 - \alpha,
-\end{equation}
-og $f(x)$ er en standardnormalfordeling. $k_\beta$ er defineret på samme vis.
+hvor $k_\alpha$ og $k_\beta$ er abscissen i en standard normalfordeling 
+svarende til sandsynlighedsniveauet $1-\alpha$ og $1-\beta$ henholdsvis.
 
 Hvis $S > L_C$ angives et observeret signal af værdien $S \pm 
-z_{1-\gamma/2}\sigma_S$, hvor
-\begin{equation}
-	\int_{-z_{1-\gamma/2}}^{z_{1-\gamma/2}} f(x) dx = 1-\gamma.
-\end{equation}
+z_{1-\gamma/2}\sigma_S$, hvor $z_{1-\gamma/2}$ er den kritiske værdi på en 
+standard normalfordeling svarende til et sandsynlighedsniveau på $1 - \gamma/2$.
 
 Hvis i stedet $S \leq L_C$ angives intet signal, og der rapporteres en øvre 
-grænse på $S + z_{1-\gamma}' \sigma_S$, hvor
-\begin{equation}
-	\int_{-\infty}^{z_{1-\gamma}'} f(x) dx = 1-\gamma.
-\end{equation}
- 
+grænse på den sande værdi af signalet på $S + z_{1-\gamma}' \sigma_S$, hvor 
+$z_{1-\gamma}'$ er den en-sidede kritiske værdi af en standardnormalfordeling 
+svarende til et sandsynlighedsniveau på $1-\gamma$.
+
+I \radex{} er $\gamma$ sat til $0.05$ som udgangspunkt.
 
 
 \bibliographystyle{JHEP}
