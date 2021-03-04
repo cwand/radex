@@ -37,6 +37,9 @@ class SpectrumAnalysisModel:
 	spectrum = None		#	Gross spectrum to analyse
 	windows = None		# The relevant windows from where counts should be extracted
 
+	sens = 1.0			# Sensitivity [cps/Bq]
+	dsens = 0.0			# Statistical uncertainty on the sensitivity
+
 
 	# Set the relevant windows (a list of tuples, e.g. [(200,260),(300,320)])
 	def set_windows(self, windows):
@@ -120,6 +123,10 @@ class SpectrumAnalysisModel:
 	# Set the gross spectrum to analyse
 	def set_spectrum(self, spec):
 		self.spectrum = spec
+
+	def set_sensitivity(self, sens, dsens):
+		self.sens = sens
+		self.dsens = dsens
 
 
 	# Perform the analysis of the spectrum

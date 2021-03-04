@@ -9,7 +9,7 @@ source_spectra = source_dir + 'spectra\\'
 sources = [
     'kilde 1',
     'kilde 2',
-    'Kilde 1+2'
+    #'Kilde 1+2'
 ]
 
 # List of backgrounds
@@ -22,5 +22,5 @@ backgrounds = [
 activities = {
     'kilde 1'   :   5047,
     'kilde 2'   :   5047,
-    'Kilde 1+2' :   10094
+    #'Kilde 1+2' :   10094
 }

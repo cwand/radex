@@ -145,7 +145,7 @@ class TestSpectrumAnalysisModel(unittest.TestCase):
 		res = s.analyse_spectrum()
 		self.assertFalse(res.detected)
 		self.assertAlmostEqual(res.net_signal, 2.0)
-		self.assertAlmostEqual(res.conf, 4.43971219593826)
+		self.assertAlmostEqual(res.conf, 2.43971219593826)
 
 
 	def test_gross_gt_lc_analysis(self):
