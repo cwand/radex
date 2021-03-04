@@ -216,7 +216,7 @@ for des in descr:
 															"gemmes, skal den skrives til loggen.",
 															"Gem til log?", ['Nej','Ja'])
 			if yn == 1:
-				radiumlog.write(mdate, des, window, mda[window], sens[window], max_act,
+				radiumlog.write(mdate, des, mda, sens, act+conf_act,
 					decay_days, decay_date)
 
 		else:

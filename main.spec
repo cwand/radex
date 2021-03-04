@@ -6,7 +6,8 @@ a = Analysis(['main.py'],
              pathex=['C:\\Users\\bub8ga\\radex'],
              binaries=[],
              datas=[
-						     ('radium_log.xlsx','.')
+						     ('radium_log.xlsx','.'),
+								 ('doc\\radex.pdf','.')
 						 ],
              hiddenimports=[],
              hookspath=[],
