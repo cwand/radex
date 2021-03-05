@@ -35,3 +35,9 @@ def yyyymmdd2date(date_string):
     # Convert to iso format
     isostring = date_string[0:4] + '-' + date_string[4:6] + '-' + date_string[6:]
     return date.fromisoformat(isostring)
+
+
+# Calculate weighted mean and standard error on weighted mean
+def wmean(meas):
+
+	return (0.0,0.0)
