@@ -20,10 +20,6 @@ import math
 pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
 archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
 
-#	Series description of known source and corresponding background
-source = 'kilde 1'
-source_bkg = 'Bg 2'
-
 #	Activity of known source
 src_act = ra223sources.activities[source]
 
@@ -39,56 +35,6 @@ print(''); print('')
 
 
 
-#   Parse input arguments
-parser = argparse.ArgumentParser()
-
-parser.add_argument('-s',
-    metavar='source_description',
-	help='Series description of the known source. You can use one of the '
-		 'standard sources (' + ', '.join(ra223sources.sources) + '), '
-		 'or you can use your own source. If you use your own source, be sure '
-		 'to specify the activity with the -S option. '
-		 'Defaults to "'+ source + '".')
-
-parser.add_argument('-S',
-    metavar='activity',
-    help='Signal to the program that the known source should be taken from the '
-		 'measurements rather than the standard sources. The activity of the '
-		 'source must be specified in [Bq].'
-    )
-
-parser.add_argument('-b',
-    metavar='source_background_description',
-	help='Series description of the background to subtract from the known '
-		 'source. You can use one of the standard backgrounds '
-		 '(' + ', '.join(ra223sources.backgrounds) + '). '
-		 'If you use your own source (with the -S option) the background '
-		 'chosen for the measurements will also be applied to the source, and '
-		 'this option is ignored. '
-		 'Defaults to "' + source_bkg + '".')
-
-
-args = parser.parse_args()
-
-if args.s is not None:
-	# Use alternative source
-	source = args.s
-	if args.S is None:
-		# Alternative source is a standard source, get activity
-		src_act = ra223sources.activities[source]
-
-if args.b is not None:
-	# Use alternative background for source subtraction
-	source_bkg = args.b
-
-if args.S is not None:
-	# Alternative source is supplied by user, get activity
-	src_act = int(args.S)
-	use_own_source = True
-
-
-
-
 #   Prepare file handler and discover all dicom files in the main directory
 fh = FileHandler(pardir)
 fh.discover()
@@ -96,16 +42,13 @@ fh.discover()
 
 #   Get all descriptions discovered
 descr = fh.descriptions()
-if use_own_source:
-    # If a source has been supplied, remove that from the list of descriptions
-    descr.remove(source)
 if not descr:
-    #   No dicom files found
-    print('Der blev ikke fundet nogle målinger. Tjek at der ligger filer med '
-          'endelsen .dcm i mappen ' + pardir + '. Filerne må gerne ligge i '
-          'undermapper.')
-    input("Tryk Enter for at afslutte programmet...")
-    exit()
+  #   No dicom files found
+  print('Der blev ikke fundet nogle målinger. Tjek at der ligger filer med '
+        'endelsen .dcm i mappen ' + pardir + '. Filerne må gerne ligge i '
+        'undermapper.')
+  input("Tryk Enter for at afslutte programmet...")
+  exit()
 
 
 
@@ -133,7 +76,7 @@ print('Analyserer baggrund...')
 print('')
 
 sens_obs = []
-src_bkg_spec = spectrum.load_from_file(ra223sources.source_spectra + source_bkg + '.txt')
+src_bkg_spec = spectrum.load_from_file(ra223sources.source_spectra + 'Bg 2.txt')
 for src in ra223sources.sources:
 
 	# Standard spectrum and background, load from file
@@ -152,41 +95,10 @@ for src in ra223sources.sources:
 
 	sens_obs.append(r_s/src_act)		# Sensitivity [cps/Bq]
 
-print(sens_obs)
+
 sens_obs = np.array(sens_obs)
 sens = np.mean(sens_obs)
 dsens = np.std(sens_obs, ddof=1)/math.sqrt(sens_obs.size)
-print(sens)
-print(dsens)
-
-
-#	Load known source
-if use_own_source:
-	# User supplied source (and background)
-	src_bkg_files = fh.files(bkg_descr) # List of files for background
-	src_files = fh.files(source) # List of files for source
-
-	# Extract the combined spectra (all files added)
-	src_bkg_spec = extract_sum(src_bkg_files)
-	src_spec = extract_sum(src_files)
-
-else:
-	# Standard spectrum and background, load from file
-	src_spec = spectrum.load_from_file(ra223sources.source_spectra + source + '.txt')
-	src_bkg_spec = spectrum.load_from_file(ra223sources.source_spectra + source_bkg + '.txt')
-
-
-
-# Calculate sensitivity (cps/Bq) from known source
-# Net source spectrum
-net_src_spec = spectrum.subtract(src_spec, src_bkg_spec)
-
-#	Get rate in windows
-r_s = 0			# Net source rate
-for window in physics.windows['Ra223']:
-	r_s += net_src_spec.window_rate(window)
-
-sens = r_s/src_act		# Sensitivity [cps/Bq]
 
 # Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
@@ -197,6 +109,7 @@ bkg_spec = extract_sum(bkg_files)
 m = sam.SpectrumAnalysisModel()
 m.set_windows(physics.windows['Ra223'])
 m.set_background(bkg_spec)
+m.set_sensitivity(sens, dsens)
 
 
 
@@ -224,8 +137,8 @@ for des in descr:
 
 	m.set_spectrum(ser_spec)
 	res = m.analyse_spectrum()
-	act = res.net_signal/sens
-	conf_act = res.conf/sens
+	act = res.net_signal
+	conf_act = res.conf
 	if res.detected:
 		# Signal above critical level
 

@@ -195,4 +195,30 @@ class TestSpectrumAnalysisModel(unittest.TestCase):
 		res = s.analyse_spectrum()
 		self.assertFalse(res.detected)
 		self.assertAlmostEqual(res.net_signal, 4.0)
-		self.assertAlmostEqual(res.conf, 2.43971219593826)
+		self.assertAlmostEqual(res.conf, 5.05374417700982)
+
+
+	def test_gross_gt_lc_analysis(self):
+
+		s = sam.SpectrumAnalysisModel()
+
+		c1 = np.zeros((4,2)) # cps
+		c1[0,0] = 0; c1[1,0] = 1; c1[2,0] = 2; c1[3,0] = 3
+		c1[0,1] = 1; c1[1,1] = 3; c1[2,1] = 7; c1[3,1] = 2
+		bkg = Spectrum(c1,10,datetime.date(2020,2,1))
+		s.set_background(bkg)
+
+		c2 = np.zeros((4,2)) # cps
+		c2[0,0] = 0; c2[1,0] = 1; c2[2,0] = 2; c2[3,0] = 3
+		c2[0,1] = 1; c2[1,1] = 13; c2[2,1] = 17; c2[3,1] = 2
+		spc = Spectrum(c2,10,datetime.date(2020,2,1))
+		s.set_spectrum(spc)
+
+		s.set_sensitivity(0.5,0.1)
+
+		s.set_windows([(1,2)])
+
+		res = s.analyse_spectrum()
+		self.assertTrue(res.detected)
+		self.assertAlmostEqual(res.net_signal, 40.0)
+		self.assertAlmostEqual(res.conf, 17.5304508115316)

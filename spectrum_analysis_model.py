@@ -138,24 +138,29 @@ class SpectrumAnalysisModel:
 		bkg_counts		= self.__bkg_window_counts()
 		gross_counts	= self.__spc_window_counts()
 
-		# Calculate error on net signal
-		sigma = math.sqrt(bkg_counts + gross_counts)
+		# Calculate error on net signal (from counting statistics)
+		sigma_s = math.sqrt(bkg_counts + gross_counts)
 
 		# Net signal in counts
 		S = self.__net_window_counts()
 		# Net signal in rate
 		S_rate = S/count_time
 
+		# Factor in sensitivity (to yield an activity)
+		A = S_rate/self.sens
+		# Calculate error on activity
+		sigma_A = math.sqrt(sigma_s**2 / count_time**2 + A**2 * self.dsens**2) / self.sens
+
 		if S_rate > self.critical_level():
 			# Signal detected, calculate confidence limit
 			z = norm.ppf(1.0 - self.gamma/2.0)
-			cl_rate = z*sigma/count_time
+			cl = z*sigma_A
 			det = True
 
 		else:
 			# Signal not detected, calculate upper limit
 			z = norm.ppf(1.0 - self.gamma)
-			cl_rate = z*sigma/count_time
+			cl = z*sigma_A
 			det = False
 
-		return SpectrumAnalysisResult(det, S_rate, cl_rate)
+		return SpectrumAnalysisResult(det, A, cl)
