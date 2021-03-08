@@ -97,6 +97,8 @@ kopieres over på den tiltænkte arbejdsstation, og programmet kan køres derfra.
 
 \section*{Brug af programmet}
 
+BESKRIVELSE AF FØLSOMHED
+
 Når programmet starter, vil den først lede efter dicom-filer i den mappe, der 
 er blevet angivet efter beskrivelsen ovenfor. Filerne samles efter dicom-taggen 
 \emph{Series description}. Det er altså vigtigt at forskellige målinger 
@@ -107,9 +109,7 @@ målinger skal man altså køre programmet én gang for hver baggrund.
 
 Når baggrunden er valgt vil programmet give brugeren information om følsomheden 
 (i enheder af $\si{cps/Bq}$) samt \emph{Minimum Detectable Activity}, eller 
-MDA, i enheder af $\si{Bq}$. Følsomheden beregnes ud fra en kendt kilde, som 
-kommer med programmet. Man kan også sætte en ny kilde til at beregne 
-følsomheden. Dette beskrives senere.
+MDA, i enheder af $\si{Bq}$.
 
 Derefter går programmet gennem alle serier den kan finde (ud over 
 baggrundsserien) i de filer, der er givet som input. For hver serie 
@@ -121,37 +121,6 @@ afslutter programmet med at spørge brugeren, om målingerne skal arkiveres.
 Vælges dette flyttes målingerne til arkiv-mappen i en mappe, der svarer til 
 datoen for kørslen af programmet. Ellers lader programmet filerne ligge.
 
-\section*{Avanceret brug}
-
-Programmet kommer med et par avancerede funktioner. For at bruge disse 
-funktioner skal programmet køres med inputargumenter, fx fra en kommandolinje.
-
-\subsection*{Brug af egen kilde}
-
-Hvis man ønsker at anvende sin egen kilde med en kendt aktivitet (til 
-kalibrering af følsomhed), gøres dette med argumenterne \texttt{-S} og 
-\texttt{-s} således:
-
-\begin{verbatim}
-	>>> python main.py -s kilde_maaling -S 10342
-\end{verbatim}
-
-Programmet vil så bruge dicom-filerne fra serien med Series description 
-\texttt{kilde\_maaling} som kilde, og bruge aktiviteten $10342\si{Bq}$ til at 
-sætte følsomheden. Når man bruger sin egen kilde med \texttt{-S} argumentet vil 
-baggrunden, der vælges når programmet starter op, også blive anvendt på den 
-kendte kilde.
-
-\subsection*{Andre funktioner}
-
-Man kan få hjælp til andre funktioner i programmet ved at bruge argumentet 
-\texttt{-h} således:
-
-\begin{verbatim}
-	>>> python main.py -h
-\end{verbatim}
-
-hvorefter en hjælpetekst vises.
 
 \section*{Matematisk baggrund}
 
@@ -197,9 +166,9 @@ z_{1-\gamma/2}\sigma_S$, hvor $z_{1-\gamma/2}$ er den kritiske værdi på en
 standard normalfordeling svarende til et sandsynlighedsniveau på $1 - \gamma/2$.
 
 Hvis i stedet $S \leq L_C$ angives intet signal, og der rapporteres en øvre 
-grænse på den sande værdi af signalet på $S + z_{1-\gamma}' \sigma_S$, hvor 
-$z_{1-\gamma}'$ er den en-sidede kritiske værdi af en standardnormalfordeling 
-svarende til et sandsynlighedsniveau på $1-\gamma$.
+grænse på den sande værdi af signalet på $S + z_{1-\gamma} \sigma_S$. Bemærk 
+her det ensidede konfidensinterval ($1-\gamma$ i stedet for $1-\gamma/2$), da 
+vi kun rapporterer en øvre grænse.
 
 I \radex{} er $\gamma$ sat til $0.05$ som udgangspunkt.
 

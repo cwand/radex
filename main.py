@@ -20,9 +20,6 @@ import math
 pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
 archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
 
-#	Activity of known source
-src_act = ra223sources.activities[source]
-
 #	Whether to look for the known source (and background) in "pardir"
 #	instead of the standard location
 use_own_source = False
@@ -32,6 +29,34 @@ use_own_source = False
 print('')
 print(' -------  RADEX -------')
 print(''); print('')
+
+# Measure sensitivity from known sources
+sens_obs = []
+src_bkg_spec = spectrum.load_from_file(ra223sources.source_spectra + 'Bg 2.txt')
+for src in ra223sources.sources:
+
+	# Standard spectrum and background, load from file
+	src_spec = spectrum.load_from_file(ra223sources.source_spectra + src + '.txt')
+
+	# Calculate sensitivity (cps/Bq) from known source
+	# Net source spectrum
+	net_src_spec = spectrum.subtract(src_spec, src_bkg_spec)
+
+	#	Get rate in windows
+	r_s = 0			# Net source rate
+	for window in physics.windows['Ra223']:
+		r_s += net_src_spec.window_rate(window)
+
+	# Get known activity
+	src_act = ra223sources.activities[src]
+
+	# Calculate sensitivity estimate from this source
+	sens_obs.append(r_s/src_act)		# Sensitivity [cps/Bq]
+
+# Calculate mean sensivity and uncertainty on sensitivity
+sens_obs = np.array(sens_obs)
+sens = np.mean(sens_obs)
+dsens = np.std(sens_obs, ddof=1)/math.sqrt(sens_obs.size)
 
 
 
@@ -75,31 +100,6 @@ print('')
 print('Analyserer baggrund...')
 print('')
 
-sens_obs = []
-src_bkg_spec = spectrum.load_from_file(ra223sources.source_spectra + 'Bg 2.txt')
-for src in ra223sources.sources:
-
-	# Standard spectrum and background, load from file
-	src_spec = spectrum.load_from_file(ra223sources.source_spectra + src + '.txt')
-
-	# Calculate sensitivity (cps/Bq) from known source
-	# Net source spectrum
-	net_src_spec = spectrum.subtract(src_spec, src_bkg_spec)
-
-	#	Get rate in windows
-	r_s = 0			# Net source rate
-	for window in physics.windows['Ra223']:
-		r_s += net_src_spec.window_rate(window)
-
-	src_act = ra223sources.activities[src]
-
-	sens_obs.append(r_s/src_act)		# Sensitivity [cps/Bq]
-
-
-sens_obs = np.array(sens_obs)
-sens = np.mean(sens_obs)
-dsens = np.std(sens_obs, ddof=1)/math.sqrt(sens_obs.size)
-
 # Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
 bkg_spec = extract_sum(bkg_files)
@@ -116,7 +116,7 @@ m.set_sensitivity(sens, dsens)
 # Calculate detection limit/MDA and report to user
 mda = m.detection_limit()/sens
 
-print('Følsomhed: {:.3f}cps/Bq'.format(sens))
+print('Følsomhed: {:.3f} +/- {:.3f} cps/Bq'.format(sens,dsens))
 #print('Kritisk niveau: {:.0f}Bq'.format(m.critical_level()/sens))
 print('MDA:       {:.0f}Bq'.format(mda))
 print('')
