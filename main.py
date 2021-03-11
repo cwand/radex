@@ -30,9 +30,6 @@ print('')
 print(' -------  RADEX -------')
 print(''); print('')
 
-# Measure sensitivity from known sources
-(sens,dsens) = ks.sensitivity()
-
 
 
 #   Prepare file handler and discover all dicom files in the main directory
@@ -49,7 +46,6 @@ if not descr:
         'undermapper.')
   input("Tryk Enter for at afslutte programmet...")
   exit()
-
 
 
 #   Query user for background spectrum to use from available descriptions
@@ -78,6 +74,10 @@ print('')
 # Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
 bkg_spec = extract_sum(bkg_files)
+
+
+# Measure sensitivity from known sources
+(sens,dsens) = ks.sensitivity()
 
 
 # Prepare Spectrum Analysis Model

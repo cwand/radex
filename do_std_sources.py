@@ -1,33 +1,35 @@
 #	Analyse std sources and write spectra to files for easy access
 
 import spectrum
-import ra223sources
 from file_handler import FileHandler
 from extract_dicom_spectrum import extract_sum
 
 
 #	Initiate file handler
-fh = FileHandler(ra223sources.source_dir)
+fh = FileHandler('ra223-src\\')
 fh.discover()
 
+descr = fh.descriptions()
+print(descr)
 
-#	Go through each source-background combination
-for bkg in ra223sources.backgrounds:
+#	Load background spectra from dicom files
+bkg_files = fh.files('Bg 2')
+bkg_spec = extract_sum(bkg_files)
 
-	#	Load background spectra from dicom files
-	bkg_files = fh.files(bkg)
-	bkg_spec = extract_sum(bkg_files)
+# Remove unwanted series
+descr.remove('Bg 2') # Dont do background
+descr.remove('Bg')   # Ditto
+descr.remove('Kilde 1+2') # This is just a test series
 
-	#	Print background spectrum separately
-	filename = ra223sources.source_spectra + bkg + '.txt'
-	bkg_spec.print_to_file(filename)
 
-for src in ra223sources.sources:
+for src in descr:
 
 	#	Load source spectra from dicom files
 	src_files = fh.files(src)
 	src_spec = extract_sum(src_files)
 
+	# Subtract background
+	net_spec = spectrum.subtract(src_spec,bkg_spec)
+
 	#	Save resulting spectrum to file
-	filename = ra223sources.source_spectra + src + '.txt'
-	src_spec.print_to_file(filename)
+	net_spec.print_to_file('known_sources\\ra223\\'+src+'.txt')
