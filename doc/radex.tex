@@ -124,6 +124,34 @@ datoen for kørslen af programmet. Ellers lader programmet filerne ligge.
 
 \section*{Matematisk baggrund}
 
+Til beregning af den målte aktivitet er der to usikkerheder, som \radex{} 
+holder styr på: usikkerheden på følsomheden samt usikkerheden forbundet med 
+tællestatistikken.
+
+Usikkerheden på følsomheden kommer fra, at vi har et antal målinger foretaget 
+på kilder, der har en kendt aktivitet. Lad den baggrundskorrigerede tællerate 
+på hver måling være $R_i$ og aktiviteten på kilden være $A_i$ (antaget uden 
+usikkerhed), hvor $i=1,\ldots,N$. Vores estimater for følsomheden er så 
+$\kappa_i = R_i/A_i$, og middelværdien er
+\begin{equation}
+	\overline{\kappa} = \frac{1}{N}\sum_{i=1}^N \kappa_i .
+\end{equation}
+Vi beregner standardfejlen på $\overline{\kappa}$ ud fra en antagelse om, at 
+$\kappa_i$ er normalfordelt. Hvis den antagelse holder fås usikkerheden på 
+$\overline{\kappa}$ til 
+\begin{equation}
+	\sigma_{\overline{\kappa}} = \frac{s_\kappa}{\sqrt{N}},
+\end{equation}
+hvor $s_\kappa$ er et estimat for standardafvigelsen
+\begin{equation}
+	s_\kappa = \sqrt{\frac{\sum_{i=1}^N \left( \kappa_i - \overline{\kappa} 
+	\right)^2}{N-1}} .
+\end{equation} 
+Estimaterne $\kappa_i$ vil ikke være eksakt normalfordelte, og en direkte 
+simulering viser, at standardfejlen typisk er undervurderet for små tælletal og 
+overvurderet for store tælletal.
+
+
 Den tællestatistiske baggrund for programmet er taget fra ref. 
 \cite{currie1968}, og er kort summeret her.
 
@@ -161,12 +189,26 @@ beregnes med formlerne
 hvor $k_\alpha$ og $k_\beta$ er abscissen i en standard normalfordeling 
 svarende til sandsynlighedsniveauet $1-\alpha$ og $1-\beta$ henholdsvis.
 
-Hvis $S > L_C$ angives et observeret signal af værdien $S \pm 
-z_{1-\gamma/2}\sigma_S$, hvor $z_{1-\gamma/2}$ er den kritiske værdi på en 
+Når et resultat vises for brugeren rapporteres det målte signal i aktivitet, 
+hvorfor både usikkerheden på følsomheden og usikkerheden fra tællestatistikken 
+spiller ind.
+Aktiviteten er
+\begin{equation}
+	A = \frac{S/t}{\kappa},
+\end{equation}
+hvor $t$ er måletiden, som antages at være uden usikkerhed. Fra propagering af 
+usikkerheder fås usikkerheden på aktiviteten til
+\begin{equation}
+	\sigma_A = \frac{1}{\kappa} \sqrt{\frac{\sigma_S^2}{t^2} + A^2 
+	\sigma_{\overline{\kappa}}^2}
+\end{equation}
+
+Hvis $S > L_C$ angives et observeret signal af værdien $A \pm 
+z_{1-\gamma/2}\sigma_A$, hvor $z_{1-\gamma/2}$ er den kritiske værdi på en 
 standard normalfordeling svarende til et sandsynlighedsniveau på $1 - \gamma/2$.
 
 Hvis i stedet $S \leq L_C$ angives intet signal, og der rapporteres en øvre 
-grænse på den sande værdi af signalet på $S + z_{1-\gamma} \sigma_S$. Bemærk 
+grænse på den sande værdi af signalet på $A + z_{1-\gamma} \sigma_A$. Bemærk 
 her det ensidede konfidensinterval ($1-\gamma$ i stedet for $1-\gamma/2$), da 
 vi kun rapporterer en øvre grænse.
 
