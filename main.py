@@ -4,26 +4,21 @@ import spectrum_analysis_model as sam
 import activity
 from file_handler import FileHandler
 from extract_dicom_spectrum import extract_sum
-import argparse
 import physics
 import known_sources as ks
-import datetime
 import radiumlog
+
+import configparser
+import datetime
 import shutil, os
 import numpy as np
 import math
 
 
-#   Setup
+#   Load configuration
 
-#   Where we look for dicom files
-pardir = 'C:\\Users\\bub8ga\\radex\\train\\DICOM\\'
-archdir = 'C:\\Users\\bub8ga\\radex\\train\\archive\\'
-
-#	Whether to look for the known source (and background) in "pardir"
-#	instead of the standard location
-use_own_source = False
-
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 
 print('')
@@ -33,7 +28,7 @@ print(''); print('')
 
 
 #   Prepare file handler and discover all dicom files in the main directory
-fh = FileHandler(pardir)
+fh = FileHandler(config['dicom']['data'])
 fh.discover()
 
 
@@ -42,8 +37,8 @@ descr = fh.descriptions()
 if not descr:
   #   No dicom files found
   print('Der blev ikke fundet nogle målinger. Tjek at der ligger filer med '
-        'endelsen .dcm i mappen ' + pardir + '. Filerne må gerne ligge i '
-        'undermapper.')
+        'endelsen .dcm i mappen ' + config['dicom']['data'] + '. '
+				'Filerne må gerne ligge i undermapper.')
   input("Tryk Enter for at afslutte programmet...")
   exit()
 
@@ -85,6 +80,9 @@ m = sam.SpectrumAnalysisModel()
 m.set_windows(physics.windows['Ra223'])
 m.set_background(bkg_spec)
 m.set_sensitivity(sens, dsens)
+m.alpha = config.getfloat('stats','alpha',fallback=0.05)
+m.beta = config.getfloat('stats','beta',fallback=0.05)
+m.gamma = config.getfloat('stats','gamma',fallback=0.05)
 
 
 
@@ -156,6 +154,8 @@ archive = utils.list_choose(
     "Arkiver data?", ['Nej','Ja'])
 
 if archive == 1:
-    arch_today_dir = archdir+datetime.date.today().isoformat()
-    os.makedirs(arch_today_dir, exist_ok=True)
-    shutil.move(pardir,arch_today_dir+'\\')
+	arch_today_dir = config['dicom']['archive']+datetime.date.today().isoformat()
+	os.makedirs(arch_today_dir, exist_ok=True)
+	shutil.move(config['dicom']['data'],arch_today_dir+'\\')
+	# Recreate parent directory without contents
+	os.makedirs(config['dicom']['data'], exist_ok=True)
