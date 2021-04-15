@@ -12,6 +12,7 @@
 \usepackage{array,booktabs}
 \usepackage{url}
 \usepackage{csquotes}
+\usepackage{lipsum}
 
 % Matematik og symboler
 \usepackage{amsmath,amssymb}
@@ -49,36 +50,16 @@
 
 % Dokumentet begynder her
 
-\section*{Om Radex}
 
-\radex{} anvendes til at detektere tilstedeværelsen af isotopen 
+\radex{} detekterer tilstedeværelsen af isotopen \isotope[223]{Ra} i billeder 
+gemt i dicom-format. Dicom-filerne læses og ud fra det spektrum, der er gemt i 
+dicom-billedet, findes et estimat for den specifikke aktivitet af 
 \isotope[223]{Ra}.
-Det tiltænkte brugsscenarie er, at en mængde af affald, tøj e.l., der har været
-i nærkontakt med \isotope[223]{Ra}, skal sikres, inden det smides ud, 
-genanvendes e.l. Affaldet scannes med et gamma-kamera, og billedet, 
-der også indeholder det målte spektrum i dicom-format, analyseres for spor af 
-\isotope[223]{Ra}. Det er denne sidste opgave, der kan klares af \radex{}.
 
-
-\section*{Download og installation}
+\section*{Setup}
 
 Kildekoden kan downloades fra GitHub: \url{https://github.com/cwand/radex}. 
-\radex{} er skrevet i Python og kan bruges uden installation. Der er dog et par 
-variable, der skal angives i kildekoden, inden programmet er helt klar til at 
-køre.
-
-\subsection*{Indstilling af filstier}
-
-\radex{} kigger efter dicom-billeder i en filsti, der er angivet i filen 
-\texttt{main.py}. Filstierne er angivet tæt på toppen af filen. Variablen 
-\texttt{pardir} angiver hvor \radex{} skal kigge efter dicom-filer. \radex{} 
-leder i undermapper efter alle filer med filendelsen \texttt{.dcm}. Også 
-baggrundsmålinger skal ligge i denne filsti.
-
-Variablen \texttt{archdir} angiver, hvor \radex{} lægger dicom-filerne, når den 
-er færdig med analysen. Når analysen er færdig flyttes indholdet af 
-\texttt{pardir}-mappen til \texttt{archdir} (man kan vælge dette fra i 
-slutningen af analysen, hvis dette ikke ønskes).
+\radex{} er skrevet i Python og kan bruges uden installation.
 
 \subsection*{Installation}
 
@@ -92,34 +73,64 @@ Python-modulet \texttt{pyinstaller}:
 
 Når installationen er fuldført findes en ny mappe med navnet \texttt{dist}, der 
 indeholder alt, der er nødvendigt for at køre programmet. Denne mappe kan så 
-kopieres over på den tiltænkte arbejdsstation, og programmet kan køres derfra.
+kopieres over på den tiltænkte arbejdsstation, og programmet \texttt{radex.exe} 
+kan køres derfra.
+
+\subsection{Opsætning}
+
+Programmet leder efter dicom-filerne i den sti der er angivet i filen 
+\texttt{config.ini}. Hvis kildekoden bruges direkte findes filen i rod-mappen. 
+Hvis programmet er installeret efter metoden ovenfor, vil filen ligge i samme 
+mappe som \texttt{radex.exe}. I filen indtastes den sti, hvor dicom-filerne 
+ligger gemt, samt evt. hvor programmet skal forsøge at arkivere filerne efter 
+analysen, hvis dette ønskes. I \texttt{config.ini} er der i øvrigt også 
+mulighed for sætte det ønskede konfidensniveau for detektion, 
+usikkerhedsintervaller osv.
+
+For at kunne kalibrere fra en målt tællerate til en aktivitet er det nødvendigt 
+at have mindst én måling på en kilde med en kendt aktivitet. Nettospektret fra 
+en sådan måling skal gemmes i mappen \texttt{known\_sources\\ra223}. Spektret 
+skal gemmes i det korrekte format, hvilket kan gøres med det medfølgende script 
+\texttt{do\_std\_sources.py}, der automatisk gemmer spektrene i det korrekte 
+format. Når spektret er gemt, fx med filnavnet \texttt{source1.txt}, skal 
+aktiviteten registreres i filen \texttt{src.txt} i samme mappe. I denne fil 
+angives fx "\texttt{source1;2543}", hvis aktiviteten er 2543\si{Bq}.
+
+Der skal angives minimum to målinger af følsomheden, da der også udregnes et 
+estimat af usikkerheden på følsomheden.
 
 
-\section*{Brug af programmet}
+\section*{Kort beskrivelse af programmet}
 
-BESKRIVELSE AF FØLSOMHED
+Når programmet starter op, vil det først lede efter dicom-filer i den sti der 
+er angivet i \texttt{config.ini}. Undermapper medtages i søgningen. Hvis der 
+ikke findes nogle filer med endelsen \texttt{.dcm}, vil programmet give en 
+fejlmeddelelse til brugeren og afslutte.
 
-Når programmet starter, vil den først lede efter dicom-filer i den mappe, der 
-er blevet angivet efter beskrivelsen ovenfor. Filerne samles efter dicom-taggen 
-\emph{Series description}. Det er altså vigtigt at forskellige målinger 
-navngives forskelligt. Programmet vil derefter bede brugeren om at specificere 
-en serie som baggrundsmåling, og denne vil blive brugt på alle de resterende 
-serier som baggrund. Ønsker man at anvende forskellige baggrunde på forskellige 
-målinger skal man altså køre programmet én gang for hver baggrund.
+Programmet samler automatisk billeder med samme dicom 
+\enquote{Series description}. Dette gør det muligt at lave et samlet spektrum 
+der er optaget på flere forskellige detektorer.
 
-Når baggrunden er valgt vil programmet give brugeren information om følsomheden 
-(i enheder af $\si{cps/Bq}$) samt \emph{Minimum Detectable Activity}, eller 
-MDA, i enheder af $\si{Bq}$.
+Når programmet har fundet alle tilgængelige dicom-serier, vil den spørge 
+brugeren om en baggrundsmåling, der vil blive brugt på alle resterende analyser.
 
-Derefter går programmet gennem alle serier den kan finde (ud over 
-baggrundsserien) i de filer, der er givet som input. For hver serie 
-rapporteres, om der bliver registreret aktivitet, samt hvornår aktiviteten kan 
-forventes at være nået under et acceptabelt niveau ($300\si{Bq}$ som 
-udgangspunkt). Hvis der bliver fundet aktivitet kan man vælge at logge 
-registreringen i et medfølgende Excel-dokument. Når alle serierne er analyseret 
-afslutter programmet med at spørge brugeren, om målingerne skal arkiveres. 
-Vælges dette flyttes målingerne til arkiv-mappen i en mappe, der svarer til 
-datoen for kørslen af programmet. Ellers lader programmet filerne ligge.
+Når en baggrund er valgt laves en analyse af baggrunden med kalibrering fra de 
+målte kilder som beskrevet ovenfor. Brugeren får vist følsomhed og estimat for 
+MDA i enheder af \si{Bq}.
+
+Derefter laves en analyse af hver serie. Efter analysen vises om der måles en 
+aktivitet. Hvis en aktivitet er målt gives et estimat samt hvornår aktiviteten 
+kan forventes at være faldet til 300\si{Bq}. Hvis ikke gives en øvre grænse for 
+aktiviteten. For hver måling, hvor der findes en aktivitet giver programmet 
+brugeren mulighed for at logge målingen i dokumentet \texttt{radium\_log.xlsx}, 
+der findes i samme mappe som \texttt{config.ini}. 
+
+Når alle serier er analyseret giver programmet mulighed for at arkivere 
+målingerne. Vælges dette vil dicom-filerne blive flyttet til den arkivmappe der 
+er angivet i \texttt{config.ini}. Hvis det vælges fra, vil programmet lukke 
+uden at gøre yderligere.
+
+
 
 
 \section*{Matematisk baggrund}
@@ -178,8 +189,8 @@ end $L_C$.
 
 Med til disse grænser hører et valg om, hvor stor tolerance vi vil tillade for 
 at lave fejl af type I ($\alpha$, falsk positiv) og type II ($\beta$, falsk 
-negativ). \radex{} sætter $\alpha = \beta = 0.05$. De to grænser kan så 
-beregnes med formlerne
+negativ). \radex{} sætter $\alpha = \beta = 0.05$ som udgangspunkt. De to 
+grænser kan så beregnes med formlerne
 
 \begin{align}
 	L_C &= k_\alpha \sqrt{2B}, \\

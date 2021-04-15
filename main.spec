@@ -7,6 +7,7 @@ a = Analysis(['main.py'],
              binaries=[],
              datas=[
 						     ('radium_log.xlsx','.'),
+								 ('config.ini','.'),
 								 ('doc\\radex.pdf','.')
 						 ],
              hiddenimports=[],
