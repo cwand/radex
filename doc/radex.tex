@@ -51,12 +51,15 @@
 % Dokumentet begynder her
 
 
+\radex{} detekterer tilstedeværelsen af isotopen \isotope[223]{Ra} i billeder 
+gemt i dicom-format. Dicom-filerne læses og ud fra det spektrum, der er gemt i 
+dicom-billedet, findes et estimat for den specifikke aktivitet af 
+\isotope[223]{Ra}.
+
 \section*{Setup}
 
 Kildekoden kan downloades fra GitHub: \url{https://github.com/cwand/radex}. 
-\radex{} er skrevet i Python og kan bruges uden installation. Der er dog et par 
-variable, der skal angives i kildekoden, inden programmet er helt klar til at 
-køre.
+\radex{} er skrevet i Python og kan bruges uden installation.
 
 \subsection*{Installation}
 
@@ -70,11 +73,54 @@ Python-modulet \texttt{pyinstaller}:
 
 Når installationen er fuldført findes en ny mappe med navnet \texttt{dist}, der 
 indeholder alt, der er nødvendigt for at køre programmet. Denne mappe kan så 
-kopieres over på den tiltænkte arbejdsstation, og programmet kan køres derfra.
+kopieres over på den tiltænkte arbejdsstation, og programmet \texttt{radex.exe} 
+kan køres derfra.
 
 \subsection{Opsætning}
 
-\lipsum[1]
+Programmet leder efter dicom-filerne i den sti der er angivet i filen 
+\texttt{config.ini}. Hvis kildekoden bruges direkte findes filen i rod-mappen. 
+Hvis programmet er installeret efter metoden ovenfor, vil filen ligge i samme 
+mappe som \texttt{radex.exe}. I filen indtastes den sti, hvor dicom-filerne 
+ligger gemt, samt evt. hvor programmet skal forsøge at arkivere filerne efter 
+analysen, hvis dette ønskes. I \texttt{config.ini} er der i øvrigt også 
+mulighed for sætte det ønskede konfidensniveau for detektion, 
+usikkerhedsintervaller osv.
+
+\fxnote{Kilder}
+
+
+\section*{Kort beskrivelse af programmet}
+
+Når programmet starter op, vil det først lede efter dicom-filer i den sti der 
+er angivet i \texttt{config.ini}. Undermapper medtages i søgningen. Hvis der 
+ikke findes nogle filer med endelsen \texttt{.dcm}, vil programmet give en 
+fejlmeddelelse til brugeren og afslutte.
+
+Programmet samler automatisk billeder med samme dicom 
+\enquote{Series description}. Dette gør det muligt at lave et samlet spektrum 
+der er optaget på flere forskellige detektorer.
+
+Når programmet har fundet alle tilgængelige dicom-serier, vil den spørge 
+brugeren om en baggrundsmåling, der vil blive brugt på alle resterende analyser.
+
+Når en baggrund er valgt laves en analyse af baggrunden med kalibrering fra de 
+målte kilder som beskrevet ovenfor. Brugeren får vist følsomhed og estimat for 
+MDA i enheder af \si{Bq}.
+
+Derefter laves en analyse af hver serie. Efter analysen vises om der måles en 
+aktivitet. Hvis en aktivitet er målt gives et estimat samt hvornår aktiviteten 
+kan forventes at være faldet til 300\si{Bq}. Hvis ikke gives en øvre grænse for 
+aktiviteten. For hver måling, hvor der findes en aktivitet giver programmet 
+brugeren mulighed for at logge målingen i dokumentet \texttt{radium\_log.xlsx}, 
+der findes i samme mappe som \texttt{config.ini}. 
+
+Når alle serier er analyseret giver programmet mulighed for at arkivere 
+målingerne. Vælges dette vil dicom-filerne blive flyttet til den arkivmappe der 
+er angivet i \texttt{config.ini}. Hvis det vælges fra, vil programmet lukke 
+uden at gøre yderligere.
+
+
 
 
 \section*{Matematisk baggrund}
