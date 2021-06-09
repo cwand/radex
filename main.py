@@ -15,19 +15,7 @@ import numpy as np
 import math
 
 
-<<<<<<< HEAD
-#   Setup
-
-#   Where we look for dicom files
-pardir = 'Y:\\Radium\\Data\\'
-archdir = 'Y:\\Radium\\Archive\\'
-
-#	Whether to look for the known source (and background) in "pardir"
-#	instead of the standard location
-use_own_source = False
-=======
 #   Load configuration
->>>>>>> development
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -166,16 +154,8 @@ archive = utils.list_choose(
     "Arkiver data?", ['Nej','Ja'])
 
 if archive == 1:
-<<<<<<< HEAD
-	arch_today_dir = archdir+datetime.date.today().isoformat()
-	os.makedirs(arch_today_dir, exist_ok=True)
-	shutil.move(pardir,arch_today_dir+'\\')
-	# Recreate parent directory without contents
-	os.makedirs(pardir, exist_ok=True)
-=======
 	arch_today_dir = config['dicom']['archive']+datetime.date.today().isoformat()
 	os.makedirs(arch_today_dir, exist_ok=True)
 	shutil.move(config['dicom']['data'],arch_today_dir+'\\')
 	# Recreate parent directory without contents
 	os.makedirs(config['dicom']['data'], exist_ok=True)
->>>>>>> development
