@@ -39,7 +39,7 @@ if not descr:
   print('Der blev ikke fundet nogle målinger. Tjek at der ligger filer med '
         'endelsen .dcm i mappen ' + config['dicom']['data'] + '. '
 				'Filerne må gerne ligge i undermapper.')
-  input("Tryk Enter for at afslutte programmet...")
+  input('Tryk Enter for at afslutte programmet...')
   exit()
 
 
