@@ -3,6 +3,7 @@ import math
 import spectrum
 import physics
 import configparser
+from pathlib import Path
 
 # Get spectrum data from sources with known activity and measure sensitivity
 def sensitivity():
@@ -47,13 +48,30 @@ def sensitivity():
 
 def write_calibration(spectrum, activity, name):
 
-  # Read configuration
-  config = configparser.ConfigParser()
-  config.read('config.ini')
+	# Read configuration
+	config = configparser.ConfigParser()
+	config.read('config.ini')
 
-  # Save spectrum to file
-  spectrum.print_to_file(config['calib']['calfiles']+ name + '.txt')
+	# Get all calibration files saved so far
+	ks_index = {}
+	my_file = Path(config['calib']['calfiles']+'src.txt')
+	if my_file.is_file():
+		with open(config['calib']['calfiles']+'src.txt') as f:
+			lines = [line.rstrip() for line in f]
+		for s in lines:
+			cont = s.split(';')
+			ks_index[cont[0]] = int(cont[1])
 
-  # Save activity to index file
-  with open(config['calib']['calfiles']+'src.txt', 'a') as f:
-  	f.write('{};{}'.format(name,activity))
+
+	# Check if name already exists, in that case report error
+	if name in ks_index:
+		print('Navn på kalibrering eksisterer allerede. '
+					'Vælg et andet navn eller slet den gamle kalibrering.')
+		exit()
+
+	# Save spectrum to file
+	spectrum.print_to_file(config['calib']['calfiles']+ name + '.txt')
+
+	# Save activity to index file
+	with open(config['calib']['calfiles']+'src.txt', 'a') as f:
+		f.write('{};{}\n'.format(name,activity))
