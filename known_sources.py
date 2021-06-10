@@ -13,7 +13,7 @@ def sensitivity():
 
   # Create known source index from index file
   ks_index = {}
-  with open(config['calib']['calfiles']+'src.txt') as f:
+  with open(config['calib']['calfiles']+'ra223\\src.txt') as f:
     lines = [line.rstrip() for line in f]
   for s in lines:
     cont = s.split(';')
@@ -23,7 +23,7 @@ def sensitivity():
   for src in ks_index:
 
   	# Load spectrum from file
-  	src_spec = spectrum.load_from_file('known_sources\\ra223\\'+src+'.txt')
+  	src_spec = spectrum.load_from_file(config['calib']['calfiles']+'ra223\\'+src+'.txt')
 
   	# Calculate sensitivity (cps/Bq) from known source
 
@@ -46,9 +46,14 @@ def sensitivity():
 
 
 def write_calibration(spectrum, activity, name):
+
+  # Read configuration
+  config = configparser.ConfigParser()
+  config.read('config.ini')
+
   # Save spectrum to file
-  spectrum.print_to_file('known_sources\\ra223\\' + name + '.txt')
+  spectrum.print_to_file(config['calib']['calfiles']+'ra223\\' + name + '.txt')
 
   # Save activity to index file
-  with open('known_sources\\ra223\\src.txt', 'a') as f:
+  with open(config['calib']['calfiles']+'ra223\\src.txt', 'a') as f:
   	f.write('{};{}'.format(name,activity))
