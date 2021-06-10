@@ -38,3 +38,12 @@ def sensitivity():
   sens = np.mean(sens_obs)
   dsens = np.std(sens_obs, ddof=1)/math.sqrt(sens_obs.size)
   return (sens,dsens)
+
+
+def write_calibration(spectrum, activity, name):
+  # Save spectrum to file
+  spectrum.print_to_file('known_sources\\ra223\\' + name + '.txt')
+
+  # Save activity to index file
+  with open('known_sources\\ra223\\src.txt', 'a') as f:
+  	f.write('{};{}'.format(name,activity))

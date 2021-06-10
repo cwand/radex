@@ -13,6 +13,12 @@ import math
 # Script used to load measurements of a calibration source and save the spectrum
 # and data, so it can be used as a known source for calibration.
 
+#   Load configuration
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+
 print('')
 print(' -------  RADEX CALIBRATION -------')
 print(''); print('')
@@ -73,13 +79,8 @@ net_spec = spectrum.subtract(cal_spec,bkg_spec)
 cal_act = input("Hvad er kalibreringskildens aktivitet på optagetidspunktet (Bq)? ")
 cal_name = input("Giv kalibreringskilden et navn: ")
 
-# Save spectrum to file
-net_spec.print_to_file('known_sources\\ra223\\' + cal_name + '.txt')
-print('Net spectrum saved successfully in location: known_sources\\ra223\\' + cal_name + '.txt')
-
-# Save activity to index file
-with open('known_sources\\ra223\\src.txt', 'a') as f:
-	f.write('{};{}'.format(cal_name,cal_act))
+ks.write_calibration(net_spec, cal_act, cal_name)
+print('Netto spektrum er gemt i stien: known_sources\\ra223\\' + cal_name + '.txt')
 
 print('Kalibrering er gemt!')
 input('Tryk Enter for at afslutte...')
