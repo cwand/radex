@@ -7,6 +7,7 @@ from extract_dicom_spectrum import extract_sum
 import physics
 import known_sources as ks
 import radiumlog
+from spectrum_plotter import SpectrumPlotter
 
 import configparser
 import datetime
@@ -117,6 +118,13 @@ for des in descr:
 
 		print('   Netto aktivitet: {:.0f} +/- {:.0f}Bq'.format(act,conf_act))
 
+		if config['settings']['plot'] == "1":
+			sp = SpectrumPlotter()
+			sp.set_background(bkg_spec)
+			sp.set_spectrum(ser_spec)
+			sp.set_title(des)
+			sp.plot()
+
 		if (act+conf_act) >  physics.acc_act['Ra223']:
 			# Net activity above acceptable level, calculate disposal date
 			decay_days = activity.decay(
@@ -134,12 +142,22 @@ for des in descr:
 				radiumlog.write(mdate, des, mda, sens, act+conf_act,
 					decay_days, decay_date)
 
+
 		else:
 			print('   Aktiviteten er under det maksimalt accepterede niveau. '
 								'Kan bortskaffes nu.')
 
+
 	else:
 		print('Ingen aktivitet registreret (øvre grænse: {:.0f}Bq)'.format(act+conf_act))
+
+		if config['settings']['plot'] == "1":
+			sp = SpectrumPlotter()
+			sp.set_background(bkg_spec)
+			sp.set_spectrum(ser_spec)
+			sp.set_title(des)
+			sp.plot()
+
 		print('Kan bortskaffes nu.')
 
 
