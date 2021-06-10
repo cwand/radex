@@ -28,7 +28,7 @@ print(''); print('')
 
 
 #   Prepare file handler and discover all dicom files in the main directory
-fh = FileHandler(config['dicom']['data'])
+fh = FileHandler()
 fh.discover()
 
 
