@@ -2,13 +2,18 @@ import numpy as np
 import math
 import spectrum
 import physics
+import configparser
 
 # Get spectrum data from sources with known activity and measure sensitivity
 def sensitivity():
 
+  # Read configuration to find calibration data
+  config = configparser.ConfigParser()
+  config.read('config.ini')
+
   # Create known source index from index file
   ks_index = {}
-  with open('known_sources\\ra223\\src.txt') as f:
+  with open(config['calib']['calfiles']+'src.txt') as f:
     lines = [line.rstrip() for line in f]
   for s in lines:
     cont = s.split(';')
