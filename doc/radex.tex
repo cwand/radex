@@ -68,7 +68,7 @@ arbejdsstation, der ikke har Python installeret, kan dette gøres ved brug af
 Python-modulet \texttt{pyinstaller}:
 
 \begin{verbatim}
-	>>> pyinstaller main.spec
+	>>> pyinstaller radex.spec
 \end{verbatim}
 
 Når installationen er fuldført findes en ny mappe med navnet \texttt{dist}, der 
@@ -76,28 +76,12 @@ indeholder alt, der er nødvendigt for at køre programmet. Denne mappe kan så
 kopieres over på den tiltænkte arbejdsstation, og programmet \texttt{radex.exe} 
 kan køres derfra.
 
-\subsection{Opsætning}
+For at kunne kalibrere fra tællerate til aktivitet skal der gemmes en 
+kalibrering. Dette program installeres på samme måde med kommandoen
 
-Programmet leder efter dicom-filerne i den sti der er angivet i filen 
-\texttt{config.ini}. Hvis kildekoden bruges direkte findes filen i rod-mappen. 
-Hvis programmet er installeret efter metoden ovenfor, vil filen ligge i samme 
-mappe som \texttt{radex.exe}. I filen indtastes den sti, hvor dicom-filerne 
-ligger gemt, samt evt. hvor programmet skal forsøge at arkivere filerne efter 
-analysen, hvis dette ønskes. I \texttt{config.ini} er der i øvrigt også 
-mulighed for sætte det ønskede konfidensniveau for detektion, 
-usikkerhedsintervaller osv.
-
-For at kunne kalibrere fra en målt tællerate til en aktivitet er det nødvendigt 
-at have mindst én måling på en kilde med en kendt aktivitet. Nettospektret fra 
-en sådan måling skal gemmes i mappen \texttt{known\_sources\\ra223}. Spektret 
-skal gemmes i det korrekte format, hvilket kan gøres med det medfølgende script 
-\texttt{do\_std\_sources.py}, der automatisk gemmer spektrene i det korrekte 
-format. Når spektret er gemt, fx med filnavnet \texttt{source1.txt}, skal 
-aktiviteten registreres i filen \texttt{src.txt} i samme mappe. I denne fil 
-angives fx "\texttt{source1;2543}", hvis aktiviteten er 2543\si{Bq}.
-
-Der skal angives minimum to målinger af følsomheden, da der også udregnes et 
-estimat af usikkerheden på følsomheden.
+\begin{verbatim}
+	>>> pyinstaller calibrate.spec
+\end{verbatim}
 
 
 \section*{Kort beskrivelse af programmet}

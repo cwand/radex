@@ -86,12 +86,18 @@ Parent nucleus    & Energy $[\si{keV}]$ & Intensity $\%$ \\ \midrule
 
 \section*{Comparison with measurement on NaI-detector}
 
-A measurement of a \isotope[223]{Ra} source with an activity of $\sim 5\si{kBq}$ is shown in Fig. \ref{fig:spec}. The measurement was performed using a NaI-detector gamma camera. The energies from Tab. \ref{tab:spec} are overlaid for comparison.
+A measurement of a \isotope[223]{Ra} source with an activity of $\sim 
+5\si{kBq}$ is shown in Fig. \ref{fig:spec}. The measurement was performed using 
+a NaI-detector gamma camera. The energies from Tab. \ref{tab:spec} are overlaid 
+for comparison. An equivalent measurement was performed with a second source of 
+the same activity.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{raspec.eps}
-    \caption{Spectrum measured from a \isotope[223]{Ra} source (black line). Energies from Tab. \ref{tab:spec} are shown as lines.}
+    \includegraphics[width=\textwidth]{raspec_fwhm.eps}
+    \caption{Spectrum measured from a \isotope[223]{Ra} source (black line). 
+    Energies from Tab. \ref{tab:spec} are shown as lines. Suggested energy 
+    windows are shown as grey areas.}
     \label{fig:spec}
 \end{figure}
 
@@ -99,25 +105,21 @@ A measurement of a \isotope[223]{Ra} source with an activity of $\sim 5\si{kBq}$
 \section*{Energy windows}
 
 Tab. \ref{tab:windows} shows a prioritised list of energy windows where the 
-presence of \isotope[223]{Ra} can be detected. The windows are all 20\% 
-windows, however due to the density of the spectrum, multiple transitions are 
-included in some of the windows. The windows are prioritised based on the 
-minimal detectable activity (MDA), which is estimated from a background 
-measurement performed in connection with the measurement of the 
-\isotope[223]{Ra} source.
-
-Note that two of the windows overlap.
+presence of \isotope[223]{Ra} can be detected. The windows are also shown in 
+Fig. \ref{fig:spec}. Windows cover the FWHM of prominent peaks in the spectrum. 
+The peaks at $\sim 95\si{keV}$ and $\sim 122\si{keV}$ were left out, since 
+the FWHM was covered by other peaks in the spectrum.
 
 \begin{table}[h]
 	\centering
-	\begin{tabular}{@{}ll@{}}
+	\begin{tabular}{@{}l@{}}
 		\toprule
-		Window $[\si{keV}]$ & MDA $[\si{Bq}]$ \\ \midrule
-		73 - 108            & 18              \\
-		130 - 169           & 56              \\
-		242 - 298           & 60              \\
-		316 - 386           & 90              \\
-		360 - 440           & 133             \\ \bottomrule
+		Window $[\si{keV}]$  \\ \midrule
+		76 - 89                          \\
+		133 - 165                         \\
+		255 - 283                         \\
+		322 - 366                        \\
+		383 - 422                      \\ \bottomrule
 	\end{tabular}
 	\caption{Prioritised list of energy windows in which the presence of 
 	\isotope[223]{Ra} can be detected.}
