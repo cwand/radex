@@ -75,8 +75,11 @@ def write_calibration(spectrum, activity, name):
 		exit()
 
 	# Save spectrum to file
-	spectrum.print_to_file(config['calib']['calfiles']+ name + '.txt')
+	res_name = config['calib']['calfiles']+ name + '.txt'
+	spectrum.print_to_file(res_name)
 
 	# Save activity to index file
 	with open(config['calib']['calfiles']+'src.txt', 'a') as f:
 		f.write('{};{}\n'.format(name,activity))
+
+	return res_name

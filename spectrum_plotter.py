@@ -21,16 +21,23 @@ class SpectrumPlotter:
 
 	def plot(self):
 
-		net_spec = spectrum.subtract(self.spec,self.bkg)
+		if self.bkg is None:
+			net_spec = self.spec
+		else:
+			net_spec = spectrum.subtract(self.spec,self.bkg)
 
 		plt.plot(net_spec.rate_by_kev[:,0],net_spec.rate_by_kev[:,1],
 			label='Net spectrum')
+
 		for window in physics.windows['Ra223']:
 			xlist = np.arange(window[0],window[1]+1,1.0)
 			ylist = net_spec.rate_by_kev[window[0]:window[1]+1,1]
 			plt.fill_between(xlist,ylist)
-		plt.plot(self.bkg.rate_by_kev[:,0],self.bkg.rate_by_kev[:,1],
-			linestyle='--',color='0.4',label='background')
+
+		if self.bkg is not None:
+			plt.plot(self.bkg.rate_by_kev[:,0],self.bkg.rate_by_kev[:,1],
+				linestyle='--',color='0.4',label='background')
+
 		plt.legend()
 		plt.xlabel("Energy [keV]")
 		plt.ylabel("Rate [cps]")

@@ -3,6 +3,7 @@ import spectrum
 from file_handler import FileHandler
 from extract_dicom_spectrum import extract_sum
 import known_sources as ks
+from spectrum_plotter import SpectrumPlotter
 
 import configparser
 import datetime
@@ -79,8 +80,13 @@ net_spec = spectrum.subtract(cal_spec,bkg_spec)
 cal_act = input("Hvad er kalibreringskildens aktivitet på optagetidspunktet (Bq)? ")
 cal_name = input("Giv kalibreringskilden et navn: ")
 
-ks.write_calibration(net_spec, cal_act, cal_name)
-print('Netto spektrum er gemt i stien: known_sources\\ra223\\' + cal_name + '.txt')
+sp = SpectrumPlotter()
+sp.set_spectrum(net_spec)
+sp.set_title(cal_name)
+sp.plot()
+
+cal_fname = ks.write_calibration(net_spec, cal_act, cal_name)
+print('Netto spektrum er gemt i stien: ' + cal_fname)
 
 print('Kalibrering er gemt!')
 input('Tryk Enter for at afslutte...')
