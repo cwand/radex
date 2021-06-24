@@ -18,7 +18,7 @@ def sensitivity():
 		lines = [line.rstrip() for line in f]
 	for s in lines:
 		cont = s.split(';')
-		ks_index[cont[0]] = int(cont[1])
+		ks_index[cont[0]] = (int(cont[1]),int(cont[2]))
 
 	sens_obs = []
 	for src in ks_index:
@@ -33,21 +33,34 @@ def sensitivity():
 		for window in physics.windows['Ra223']:
 			r_s += src_spec.window_rate(window)
 
-		# Get known activity
-		src_act = ks_index[src]
+		# Uncertainty on counting rate from poisson statistics
+		dr_s = math.sqrt(r_s/src_spec.count_time)
+
+		# Get known activity and uncertainty
+		(src_act,dsrc_act) = ks_index[src]
+
+		# Estimated sensitivity
+		sens_i = r_s/src_act
+
+		# Estimated uncertainy on sensitivity
+		dsens_i = math.sqrt(dr_s**2 + sens_i**2 * dsrc_act**2)/src_act
+
 
 		# Calculate sensitivity estimate from this source
-		sens_obs.append(r_s/src_act)		# Sensitivity [cps/Bq]
+		sens_obs.append((sens_i,dsens_i))		# Sensitivity [cps/Bq]
 
 	# Calculate mean sensivity and uncertainty on sensitivity
-	sens_obs = np.array(sens_obs)
-	sens = np.mean(sens_obs)
-	if sens_obs.size == 1:
-		print('Usikkerhed på følsomhed bliver ignoreret, '
-					'da der kun er registreret 1 kalibrering!')
-		dsens = 0
-	else:
-		dsens = np.std(sens_obs, ddof=1)/math.sqrt(sens_obs.size)
+	# Mean sensitivity = (sum_i K_i/dK_i^2)/(sum_i 1/dK_i^2)
+	num = 0; den = 0
+	for i in range(0,len(sens_obs)):
+		num += sens_obs[i][0]/(sens_obs[i][1]**2)
+		den += 1.0/(sens_obs[i][1]**2)
+	sens = num/den
+
+	# Uncertainty is sqrt(1/sum_i(1/dK_i^2)) = sqrt(1/den)
+	dsens = math.sqrt(1.0/den)
+
+	print(dsens)
 	return (sens,dsens)
 
 
