@@ -51,7 +51,7 @@ def sensitivity():
 	return (sens,dsens)
 
 
-def write_calibration(spectrum, activity, name):
+def write_calibration(spectrum, activity, uncertainty_act, name):
 
 	# Read configuration
 	config = configparser.ConfigParser()
@@ -80,6 +80,6 @@ def write_calibration(spectrum, activity, name):
 
 	# Save activity to index file
 	with open(config['calib']['calfiles']+'src.txt', 'a') as f:
-		f.write('{};{}\n'.format(name,activity))
+		f.write('{};{};{}\n'.format(name,activity,uncertainty_act))
 
 	return res_name

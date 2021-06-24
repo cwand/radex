@@ -78,6 +78,7 @@ net_spec = spectrum.subtract(cal_spec,bkg_spec)
 
 # Query user for activity and calibration name
 cal_act = input("Hvad er kalibreringskildens aktivitet på optagetidspunktet (Bq)? ")
+cal_sa = input("Hvad er usikkerheden på kalibreringskildens aktivitet på optagetidspunktet (Bq)? ")
 cal_name = input("Giv kalibreringskilden et navn: ")
 
 sp = SpectrumPlotter()
@@ -85,7 +86,7 @@ sp.set_spectrum(net_spec)
 sp.set_title(cal_name)
 sp.plot()
 
-cal_fname = ks.write_calibration(net_spec, cal_act, cal_name)
+cal_fname = ks.write_calibration(net_spec, cal_act, cal_sa, cal_name)
 print('Netto spektrum er gemt i stien: ' + cal_fname)
 
 print('Kalibrering er gemt!')
