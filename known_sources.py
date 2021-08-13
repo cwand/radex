@@ -60,7 +60,6 @@ def sensitivity():
 	# Uncertainty is sqrt(1/sum_i(1/dK_i^2)) = sqrt(1/den)
 	dsens = math.sqrt(1.0/den)
 
-	print(dsens)
 	return (sens,dsens)
 
 
