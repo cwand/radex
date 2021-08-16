@@ -9,6 +9,11 @@ windows = {
             (383,422)# Emission at 401.8keV from Rn-219 and at 404.9 from Pb-211 daughter nuclei
 						]
 }
+'''
+windows = {
+  'Ra223': None
+}
+'''
 
 # Half life of specific isotopes (days)
 half_life = {

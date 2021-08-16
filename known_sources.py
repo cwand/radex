@@ -29,9 +29,12 @@ def sensitivity():
 		# Calculate sensitivity (cps/Bq) from known source
 
 		#	Get rate in windows
-		r_s = 0			# Net source rate
-		for window in physics.windows['Ra223']:
-			r_s += src_spec.window_rate(window)
+		if physics.windows['Ra223'] is None:
+			r_s = src_spec.window_rate() # Use entire spectrum
+		else:
+			r_s = 0			# Net source rate
+			for window in physics.windows['Ra223']:
+				r_s += src_spec.window_rate(window)
 
 		# Uncertainty on counting rate from poisson statistics
 		dr_s = math.sqrt(r_s/src_spec.count_time)

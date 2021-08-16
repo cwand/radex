@@ -29,10 +29,15 @@ class SpectrumPlotter:
 		plt.plot(net_spec.rate_by_kev[:,0],net_spec.rate_by_kev[:,1],
 			label='Net spectrum')
 
-		for window in physics.windows['Ra223']:
-			xlist = np.arange(window[0],window[1]+1,1.0)
-			ylist = net_spec.rate_by_kev[window[0]:window[1]+1,1]
+		if physics.windows['Ra223'] is None:
+			xlist = net_spec.rate_by_kev[:,0]
+			ylist = net_spec.rate_by_kev[:,1]
 			plt.fill_between(xlist,ylist)
+		else:
+			for window in physics.windows['Ra223']:
+				xlist = np.arange(window[0],window[1]+1,1.0)
+				ylist = net_spec.rate_by_kev[window[0]:window[1]+1,1]
+				plt.fill_between(xlist,ylist)
 
 		if self.bkg is not None:
 			plt.plot(self.bkg.rate_by_kev[:,0],self.bkg.rate_by_kev[:,1],
