@@ -42,5 +42,5 @@ class SpectrumPlotter:
 		plt.xlabel("Energy [keV]")
 		plt.ylabel("Rate [cps]")
 		plt.title(self.name)
-		print("Viser plot. Luk vinduet når du er færdig, for at fortsætte.")
+		print("   Viser plot. Luk vinduet når du er færdig, for at fortsætte.")
 		plt.show()
