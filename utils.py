@@ -17,21 +17,31 @@ from datetime import date
 
 def list_choose(descText, quest, options):
 
-    print(descText)
+  print(descText)
 
-    for key, option in enumerate(options, 1):
-        print('  [' + str(key) + ']  ' + str(option))
+  for key, option in enumerate(options, 1):
+    print('  [' + str(key) + ']  ' + str(option))
 
-    selKey = -1
-    while (selKey < 0 or selKey >= len(options)):
-       selKey = int(input(quest + " ")) - 1
+  selKey = -1
+  while (selKey < 0 or selKey >= len(options)):
+    selKey = int(input(quest + " ")) - 1
 
-    return selKey
+  return selKey
 
+
+def list_yn(descText, quest):
+
+  print(descText)
+
+  selKey = ""
+  while not (selKey.casefold() == "j".casefold() or selKey.casefold() == "n".casefold()):
+    selKey = input(quest + " (J/N)  ")
+
+  return (selKey == "j" or selKey == "J")
 
 
 # Convert a string with format "yyyymmdd" to a python date object
 def yyyymmdd2date(date_string):
-    # Convert to iso format
-    isostring = date_string[0:4] + '-' + date_string[4:6] + '-' + date_string[6:]
-    return date.fromisoformat(isostring)
+  # Convert to iso format
+  isostring = date_string[0:4] + '-' + date_string[4:6] + '-' + date_string[6:]
+  return date.fromisoformat(isostring)

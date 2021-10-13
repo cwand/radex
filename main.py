@@ -141,10 +141,10 @@ for des in descr:
 			print('')
 
 			# Query user to write to log file
-			yn = utils.list_choose("Hvis du synes at beregningen ser rigtig ud og den skal "
+			yn = utils.list_yn("Hvis du synes at beregningen ser rigtig ud og den skal "
 															"gemmes, skal den skrives til loggen.",
-															"Gem til log?", ['Nej','Ja'])
-			if yn == 1:
+															"Gem til log?")
+			if yn:
 				radiumlog.write(mdate, des, mda, sens, act+conf_act,
 					decay_days, decay_date)
 
@@ -173,11 +173,11 @@ for des in descr:
 	print('')
 
 
-archive = utils.list_choose(
+archive = utils.list_yn(
     "Hvis du er færdig med at arbejde med disse data, kan du arkivere det.",
-    "Arkiver data?", ['Nej','Ja'])
+    "Arkiver data?")
 
-if archive == 1:
+if archive:
 	arch_today_dir = config['dicom']['archive']+datetime.date.today().isoformat()
 	os.makedirs(arch_today_dir, exist_ok=True)
 	shutil.move(config['dicom']['data'],arch_today_dir+'\\')
