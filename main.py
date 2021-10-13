@@ -64,9 +64,6 @@ print('')
 print('')
 
 
-print('Analyserer baggrund...')
-print('')
-
 # Fetch spectra for background
 bkg_files = fh.files(bkg_descr) # List of files for background
 bkg_spec = extract_sum(bkg_files)
@@ -90,14 +87,15 @@ m.gamma = config.getfloat('stats','gamma',fallback=0.05)
 # Calculate detection limit/MDA and report to user
 mda = m.detection_limit()/sens
 
-print('Følsomhed: {:.3f} +/- {:.3f} cps/Bq'.format(sens,dsens))
-#print('Kritisk niveau: {:.0f}Bq'.format(m.critical_level()/sens))
-print('MDA:       {:.0f}Bq'.format(mda))
-print('')
-
-input("Tryk Enter for at fortsætte...")
-print('')
-print('')
+if config['settings']['verbose'] == 1:
+	print('Baggrundsanalyse:')
+	print('   Følsomhed: {:.3f} +/- {:.3f} cps/Bq'.format(sens,dsens))
+	#print('   Kritisk niveau: {:.0f}Bq'.format(m.critical_level()/sens))
+	print('   MDA:       {:.0f}Bq'.format(mda))
+	print('')
+	input("Tryk Enter for at fortsætte...")
+	print('')
+	print('')
 
 
 #   Measure activity for each description
@@ -126,6 +124,14 @@ for des in descr:
 			sp.plot()
 
 		if (act+conf_act) >  physics.acc_act['Ra223']:
+
+			if config['settings']['plot'] == "2":
+				sp = SpectrumPlotter()
+				sp.set_background(bkg_spec)
+				sp.set_spectrum(ser_spec)
+				sp.set_title(des)
+				sp.plot()
+
 			# Net activity above acceptable level, calculate disposal date
 			decay_days = activity.decay(
 				act+conf_act, physics.acc_act['Ra223'], physics.half_life['Ra223'])
