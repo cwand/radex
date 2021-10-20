@@ -2,12 +2,12 @@
 
 block_cipher = None
 
-a = Analysis(['main.py'],
-             pathex=['C:\\Users\\bub8ga\\radex'],
+a = Analysis(['src\\radex\\main.py'],
+             pathex=['C:\\Users\\bub8ga\\radex\\src\\radex'],
              binaries=[],
              datas=[
 						     ('radium_log.xlsx','.'),
-								 ('config.ini','.'),
+								 ('radex.ini','.'),
 								 ('doc\\radex.pdf','.')
 						 ],
              hiddenimports=[],
