@@ -1,9 +1,4 @@
-import utils
-import spectrum
-from file_handler import FileHandler
-from extract_dicom_spectrum import extract_sum
-import known_sources as ks
-from spectrum_plotter import SpectrumPlotter
+import radex
 
 import configparser
 import datetime
@@ -25,7 +20,7 @@ print(' -------  RADEX CALIBRATION -------')
 print(''); print('')
 
 #   Prepare file handler and discover all dicom files in the main directory
-fh = FileHandler()
+fh = radex.FileHandler()
 fh.discover()
 
 

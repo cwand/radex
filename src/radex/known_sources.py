@@ -1,9 +1,9 @@
 import numpy as np
 import math
-import spectrum
-import physics
 import configparser
 from pathlib import Path
+
+from . import spectrum
 
 # Get spectrum data from sources with known activity and measure sensitivity
 def sensitivity():

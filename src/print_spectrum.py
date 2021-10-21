@@ -1,13 +1,4 @@
-import utils
-import spectrum
-import spectrum_analysis_model as sam
-import activity
-from file_handler import FileHandler
-from extract_dicom_spectrum import extract_sum
-import physics
-import known_sources as ks
-import radiumlog
-from spectrum_plotter import SpectrumPlotter
+import radex
 
 import configparser
 import datetime

@@ -2,8 +2,9 @@ import os, sys
 import numpy as np
 import pydicom
 import tempfile
-import spectrum
-import utils
+
+from . import utils
+from . import spectrum
 
 # Extract spectrum from dicom file
 # Spectrum is extracted from the selected dicom file and written in plain

@@ -1,6 +1,7 @@
 from scipy.stats import norm
-import spectrum
 import math
+
+from . import spectrum
 
 # This file defines behaviour related to the statistical analysis of a spectrum
 
@@ -70,7 +71,7 @@ class SpectrumAnalysisModel:
 
 	# Same as above, but for the net spectrum
 	def __net_window_counts(self):
-		net_spectrum = spectrum.subtract(self.spectrum,self.background)
+		net_spectrum = spectrum.subtract_spectrum(self.spectrum,self.background)
 		count_time = net_spectrum.count_time
 		total_rate = 0
 		if self.windows is None:

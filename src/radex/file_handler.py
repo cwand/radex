@@ -5,10 +5,13 @@ import configparser
 
 class FileHandler:
 
-	def __init__(self):
-		config = configparser.ConfigParser()
-		config.read('config.ini')
-		self.fp = config['dicom']['data']
+	def __init__(self, searchPath=None):
+		if searchPath is None:
+			config = configparser.ConfigParser()
+			config.read('radex.ini')
+			self.fp = config['dicom']['data']
+		else:
+			self.fp = searchPath
 		self.filemap = defaultdict(list)
 
 	#   Recrsively discover all dicom files (*.dcm) in the handlers directory

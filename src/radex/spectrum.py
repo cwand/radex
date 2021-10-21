@@ -78,7 +78,7 @@ def load_from_file(file_name):
 #   merged (i.e. increasing the count rate). The count time and measurement date
 #   of both files must therefore be the same, and will also be the same in the
 #   resulting spectrum.
-def add(spec1, spec2):
+def add_spectrum(spec1: Spectrum, spec2: Spectrum) -> Spectrum:
 
 	#   Check that the count time is the same
 	if not spec1.count_time == spec2.count_time:
@@ -102,7 +102,7 @@ def add(spec1, spec2):
 #   Meant to be used for subtracting background from a spectrum. The count time
 #   and date of both files must therefore be the same, and will also be the same
 #   in the resulting spectrum.
-def subtract(spec1, spec2):
+def subtract_spectrum(spec1: Spectrum, spec2: Spectrum) -> Spectrum:
 
 	#   Check that the count time is the same
 	if not spec1.count_time == spec2.count_time:

@@ -1,8 +1,8 @@
-import spectrum
-import physics
-
 import matplotlib.pyplot as plt
 import numpy as np
+
+from . import spectrum
+
 
 class SpectrumPlotter:
 
@@ -24,10 +24,11 @@ class SpectrumPlotter:
 		if self.bkg is None:
 			net_spec = self.spec
 		else:
-			net_spec = spectrum.subtract(self.spec,self.bkg)
+			net_spec = spectrum.subtract_spectrum(self.spec, self.bkg)
 
 		plt.plot(net_spec.rate_by_kev[:,0],net_spec.rate_by_kev[:,1],
-			label='Net spectrum')
+				label='Net spectrum')
+
 
 		if physics.windows['Ra223'] is None:
 			xlist = net_spec.rate_by_kev[:,0]

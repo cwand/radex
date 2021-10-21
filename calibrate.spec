@@ -3,10 +3,10 @@
 block_cipher = None
 
 
-a = Analysis(['calibrate.py'],
-             pathex=['C:\\Users\\bub8ga\\radex'],
+a = Analysis(['src\\calibrate.py'],
+             pathex=['C:\\Users\\bub8ga\\radex\\src'],
              binaries=[],
-             datas=[('config.ini','.')],
+             datas=[('src\\config.ini','.')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

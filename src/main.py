@@ -1,13 +1,5 @@
-import utils
-import spectrum
-import spectrum_analysis_model as sam
-import activity
-from file_handler import FileHandler
-from extract_dicom_spectrum import extract_sum
-import physics
-import known_sources as ks
-import radiumlog
-from spectrum_plotter import SpectrumPlotter
+import radex
+from radex import utils
 
 import configparser
 import datetime
@@ -19,7 +11,7 @@ import math
 #   Load configuration
 
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('radex.ini')
 
 
 print('')
@@ -29,7 +21,7 @@ print(''); print('')
 
 
 #   Prepare file handler and discover all dicom files in the main directory
-fh = FileHandler()
+fh = radex.FileHandler()
 fh.discover()
 
 
