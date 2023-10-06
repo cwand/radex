@@ -5,6 +5,10 @@ import os
 
 class TestFileHandler(unittest.TestCase):
 
+    def test_default_to_config_file(self):
+        fh = radex.FileHandler()
+        self.assertEqual(fh.fp, 'train\\DICOM\\')
+
     def test_discover_descriptions(self):
         fh = radex.FileHandler(data_fp=os.path.join('test', 'DICOM'))
         fh.discover()

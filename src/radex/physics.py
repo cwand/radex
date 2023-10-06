@@ -19,6 +19,15 @@ class Radium223:
 		self.acc_act = 300  # Bq
 
 
+def get_sens(fp: str) -> dict[tuple[int, int], tuple[float, float]]:
+	sens_dict = {}
+	with open(fp) as f:
+		for line in f:
+			s = line.split()
+			sens_dict[(int(s[0]), int(s[1]))] = (float(s[2]), float(s[3]))
+	return sens_dict
+
+
 #   Calculate the amount of time until an initial activity has decayed to
 #   a target activity given the half life.
 #   The unit of the returned time is the same as the unit on the half life

@@ -1,4 +1,3 @@
-from collections import defaultdict
 from typing import DefaultDict
 import numpy as np
 import numpy.typing as npt
@@ -122,6 +121,9 @@ class Radium223:
     acc_act: float
 
     def __init__(self): ...
+
+
+def get_sens(fp: str) -> dict[tuple[int, int], tuple[float, float]]: ...
 
 def decay(activity_i: float, activity_f: float, half_life: float) -> float: ...
 
